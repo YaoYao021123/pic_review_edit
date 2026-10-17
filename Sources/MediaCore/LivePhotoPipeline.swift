@@ -87,7 +87,7 @@ public enum LivePhotoPipeline {
                                 targetSize: CGSize(width: 1200, height: 1200), contentMode: .aspectFit) { photo, info in
                 guard !(info[PHLivePhotoInfoIsDegradedKey] as? Bool ?? false) else { return }
                 if let photo { continuation.resume(returning: photo) }
-                else { continuation.resume(throwing: info[PHLivePhotoInfoErrorKey] as? Error ?? VideoWorkError.failed("系统未识别 Live Photo 配对")) }
+                else { continuation.resume(throwing: info[PHLivePhotoInfoErrorKey] as? Error ?? VideoWorkError.failed(L("系统未识别 Live Photo 配对"))) }
             }
         }
     }
@@ -117,7 +117,7 @@ public enum LivePhotoPipeline {
             guard reader.canAdd(output) else { continue }
             reader.add(output)
             let adaptor = AVAssetReaderOutputMetadataAdaptor(assetReaderTrackOutput: output)
-            guard reader.startReading() else { throw reader.error ?? VideoWorkError.failed("无法读取 Live 封面时间") }
+            guard reader.startReading() else { throw reader.error ?? VideoWorkError.failed(L("无法读取 Live 封面时间")) }
             defer { reader.cancelReading() }
             // Only a short Live resource is inspected; cap ancillary camera
             // metadata groups instead of scanning an arbitrary movie forever.
@@ -150,7 +150,7 @@ public enum LivePhotoPipeline {
                 read.alwaysCopiesSampleData = false
                 let write = AVAssetWriterInput(mediaType: type, outputSettings: nil, sourceFormatHint: format)
                 if type == .video { write.transform = try await track.load(.preferredTransform) }
-                guard reader.canAdd(read), writer.canAdd(write) else { throw VideoWorkError.failed("无法添加配对轨道") }
+                guard reader.canAdd(read), writer.canAdd(write) else { throw VideoWorkError.failed(L("无法添加配对轨道")) }
                 reader.add(read); writer.add(write); channels.append((read, write))
             }
         }
@@ -160,12 +160,12 @@ public enum LivePhotoPipeline {
             kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_SInt8]
         guard CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
             metadataType: kCMMetadataFormatType_Boxed, metadataSpecifications: [spec] as CFArray,
-            formatDescriptionOut: &metadataFormat) == noErr, let metadataFormat else { throw VideoWorkError.failed("封面时间格式无效") }
+            formatDescriptionOut: &metadataFormat) == noErr, let metadataFormat else { throw VideoWorkError.failed(L("封面时间格式无效")) }
         let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormat)
         let adaptor = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
-        guard writer.canAdd(metadataInput) else { throw VideoWorkError.failed("无法写入封面时间") }
+        guard writer.canAdd(metadataInput) else { throw VideoWorkError.failed(L("无法写入封面时间")) }
         writer.add(metadataInput)
-        guard writer.startWriting(), reader.startReading() else { throw writer.error ?? reader.error ?? VideoWorkError.failed("配对写入未开始") }
+        guard writer.startWriting(), reader.startReading() else { throw writer.error ?? reader.error ?? VideoWorkError.failed(L("配对写入未开始")) }
         writer.startSession(atSourceTime: .zero)
         let still = AVMutableMetadataItem()
         still.keySpace = .quickTimeMetadata; still.key = "com.apple.quicktime.still-image-time" as NSString
@@ -174,30 +174,30 @@ public enum LivePhotoPipeline {
         do {
             while !metadataInput.isReadyForMoreMediaData {
                 try Task.checkCancellation()
-                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed("封面时间轨道未就绪") }
+                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed(L("封面时间轨道未就绪")) }
                 try await Task.sleep(for: .milliseconds(2))
             }
-            guard adaptor.append(group) else { throw writer.error ?? VideoWorkError.failed("封面时间写入失败") }
+            guard adaptor.append(group) else { throw writer.error ?? VideoWorkError.failed(L("封面时间写入失败")) }
             metadataInput.markAsFinished()
             var finished = Set<Int>()
             while finished.count < channels.count {
                 try Task.checkCancellation()
-                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed("配对写入中断") }
+                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed(L("配对写入中断")) }
                 var advanced = false
                 for (index, channel) in channels.enumerated() where !finished.contains(index) && channel.1.isReadyForMoreMediaData {
                     if let sample = channel.0.copyNextSampleBuffer() {
-                        guard channel.1.append(sample) else { throw writer.error ?? VideoWorkError.failed("媒体样本写入失败") }
+                        guard channel.1.append(sample) else { throw writer.error ?? VideoWorkError.failed(L("媒体样本写入失败")) }
                     } else { channel.1.markAsFinished(); finished.insert(index) }
                     advanced = true
                 }
                 if !advanced { try await Task.sleep(for: .milliseconds(2)) }
             }
-            guard reader.status == .completed else { throw reader.error ?? VideoWorkError.failed("配对读取失败") }
+            guard reader.status == .completed else { throw reader.error ?? VideoWorkError.failed(L("配对读取失败")) }
             // Keep Live length exact even when the final 59.94 fps sample
             // straddles the requested end time by a fraction of a frame.
             writer.endSession(atSourceTime: CMTime(seconds: duration, preferredTimescale: 60000))
             await writer.finishWriting()
-            guard writer.status == .completed else { throw writer.error ?? VideoWorkError.failed("配对未完成") }
+            guard writer.status == .completed else { throw writer.error ?? VideoWorkError.failed(L("配对未完成")) }
         } catch { reader.cancelReading(); writer.cancelWriting(); throw error }
     }
 }

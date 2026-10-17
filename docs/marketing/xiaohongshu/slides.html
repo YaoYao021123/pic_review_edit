@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光集 · 小红书图文 / 实况图（1080×1440）</title>
+<!--
+  Eight picture-and-words cards, 1080 × 1440 (3:4): the picture in the middle, the words underneath.
+  Each card has 3 seconds of motion, so it can be posted as a plain image or as a Live Photo.
+  Rendered by scripts/render-xiaohongshu-slides.sh.
+
+  Open in Chrome:  (nothing)         every card at once, in its final state
+                   ?slide=3          card 3, fitted to the window     &play=1  loops its motion
+  Edit the words right here; each card is one <section class="slide">.
+-->
+<style>
+:root{--paper:#f2f0e8;--ink:#2b2d27;--muted:#6f6d64;--faint:#a19e93;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Noto Sans SC",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:#d8d5cb;font-family:var(--font);-webkit-font-smoothing:antialiased}
+body.render{background:var(--paper)}
+.deck{display:flex;flex-wrap:wrap;gap:24px;padding:24px}
+.cell{width:360px;height:480px;overflow:hidden;flex:none}
+.cell .slide{transform:scale(.3333);transform-origin:0 0}
+body.single .deck{padding:0;display:block}
+body.single .cell{width:auto;height:auto;overflow:visible}
+body.single .cell .slide{transform:none;position:absolute;left:50%;top:50%;transform-origin:center center}
+body.render .cell .slide{position:absolute;left:0;top:0;transform:none!important}
+
+.slide{position:relative;width:1080px;height:1440px;background:var(--paper);color:var(--ink);overflow:hidden}
+
+/* the picture, in the middle */
+.pic{position:absolute;left:60px;top:100px;width:960px;height:880px;overflow:hidden;background:#262626}
+.pic img{position:absolute;display:block}
+.fill img{inset:0;width:100%;height:100%;object-fit:cover}
+.contain img{inset:0;width:100%;height:100%;object-fit:contain}
+
+/* the words, underneath */
+.words{position:absolute;left:60px;right:60px;top:1030px}
+.t{font-size:68px;font-weight:800;line-height:1.22;letter-spacing:-.01em;margin:0}
+.s{font-size:38px;line-height:1.5;color:var(--muted);margin:18px 0 0}
+.ln{display:block;opacity:0;animation:rise .7s cubic-bezier(.2,.7,.2,1) var(--d,0s) both}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.fade{opacity:0;animation:fade .6s ease var(--d,0s) both}
+.foot{position:absolute;left:60px;right:60px;bottom:44px;display:flex;align-items:center;gap:12px;font-size:28px;color:var(--faint)}
+.foot img{width:36px;height:36px}
+.foot b{font-weight:600;color:var(--muted)}
+.foot span{margin-left:auto}
+
+/* 1 cover: the photo settles in */
+.settle{animation:settle 2.8s cubic-bezier(.2,.6,.2,1) both}
+@keyframes settle{from{transform:scale(1.2)}to{transform:scale(1)}}
+
+/* 2 sliders */
+.sl{background:#121213;padding:40px 36px}
+.row{position:relative;height:58px}
+.row i{position:absolute;left:0;top:24px;width:70px;height:9px;border-radius:5px;background:#55555a}
+.row b{position:absolute;left:100px;right:0;top:27px;height:3px;background:#46464b}
+.row u{position:absolute;top:18px;width:22px;height:22px;border-radius:50%;background:#c9c6bc;left:140px;animation:sway var(--s,4s) ease-in-out var(--o,0s) infinite alternate both}
+@keyframes sway{from{left:140px}to{left:var(--to,700px)}}
+
+/* 3 compare */
+.cmp img{inset:0;width:100%;height:100%;object-fit:cover}
+.cmp .after{animation:sweep 2.6s cubic-bezier(.65,0,.35,1) .2s both}
+@keyframes sweep{0%{clip-path:inset(0 0 0 100%)}70%{clip-path:inset(0 0 0 0%)}100%{clip-path:inset(0 0 0 50%)}}
+.cmp .line{position:absolute;top:0;bottom:0;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 16px rgba(0,0,0,.5);animation:sweepline 2.6s cubic-bezier(.65,0,.35,1) .2s both}
+@keyframes sweepline{0%{left:100%}70%{left:0%}100%{left:50%}}
+.tag{position:absolute;bottom:26px;font-size:36px;font-weight:600;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.7);opacity:0;animation:fade .5s ease var(--d,2.2s) both}
+.tag.l{left:34px}.tag.r{right:34px}
+
+/* 4 presets: a ring hops across the thumbnails */
+.ring{position:absolute;top:var(--ry,232px);width:150px;height:112px;border:4px solid #fff;border-radius:9px;animation:hop 2.4s steps(1,end) .3s both}
+@keyframes hop{0%{left:173px}25%{left:329px}50%{left:485px}75%{left:641px}100%{left:329px}}
+
+/* 5-6 push-in */
+.push{position:absolute;inset:0;transform-origin:var(--ox,50%) var(--oy,50%);animation:push 2.8s ease-in-out both}
+@keyframes push{from{transform:scale(1)}to{transform:scale(var(--zoom,1.1))}}
+
+/* 7 close */
+.logo{position:absolute;left:50%;top:50%;width:420px;height:420px;margin:-210px 0 0 -210px;animation:turn 1.4s cubic-bezier(.2,.8,.2,1) .1s both}
+@keyframes turn{from{opacity:0;transform:rotate(-90deg) scale(.5)}to{opacity:1;transform:none}}
+.slide.close .pic{background:var(--paper)}
+
+/* 7 story: real commit lines build up */
+.log{background:#121213;padding:0 44px;display:flex;flex-direction:column;justify-content:center;font:27px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+.log .row2{display:flex;gap:22px;opacity:0;animation:fade .4s ease var(--d,0s) both;white-space:nowrap}
+.log .row2 i{font-style:normal;color:#6f6d64;flex:none}
+.log .row2 span{color:#d6d3c8;overflow:hidden;text-overflow:ellipsis}
+.log .row2:first-child span{color:#fff}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="cell"><section class="slide" data-name="封面">
+  <div class="pic fill"><div class="push settle" style="animation-name:settle"><img src="../../../website/assets/after.jpg" alt=""></div></div>
+  <div class="words"><h1 class="t"><span class="ln" style="--d:.3s">DJI 拍完，</span><span class="ln" style="--d:.6s">想在 Mac 上调色？</span></h1>
+    <p class="s"><span class="ln" style="--d:1.1s">我做了个很简单的工具</span></p></div>
+  <div class="foot fade" style="--d:1.4s"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>1 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="问题">
+  <div class="pic sl" id="sliders"></div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">DJI Mimo 只有手机版</span></h2>
+    <p class="s"><span class="ln" style="--d:.7s">Lightroom、PS 又太重<br>第一眼就是几十个滑块</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>2 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="自动">
+  <div class="pic cmp">
+    <img src="../../../website/assets/before.jpg" alt=""><img class="after" src="../../../website/assets/after.jpg" alt=""><div class="line"></div>
+    <span class="tag l">原图</span><span class="tag r">自动后</span>
+  </div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">点一下「自动」</span></h2>
+    <p class="s"><span class="ln" style="--d:.7s">它先看这张照片，再替你调好明暗和颜色<br>不满意，⌘Z 撤销</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>3 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="预设">
+  <div class="pic contain">
+    <img src="../../../website/assets/panel-presets.jpg" alt="" style="left:150px;width:660px;height:880px;object-fit:fill">
+    <div class="ring"></div>
+  </div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">预设，直接用<br>你的照片预览</span></h2>
+    <p class="s"><span class="ln" style="--d:.9s">喜欢哪个点哪个，调好的样子还能存成自己的</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>4 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="裁剪">
+  <div class="pic fill"><div class="push" style="--ox:20%;--oy:50%;--zoom:1.5"><img src="../../../website/assets/shot-crop.jpg" alt=""></div></div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">裁剪，直接在照片上拖</span></h2>
+    <p class="s"><span class="ln" style="--d:.7s">拖四个角缩放，画幅比例自动保持</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>5 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="导出">
+  <div class="pic contain" style="background:#202020"><div class="push" style="--ox:50%;--oy:20%;--zoom:1.05"><img src="../../../website/assets/sheet-export.jpg" alt=""></div></div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">调完，存进「照片」</span></h2>
+    <p class="s"><span class="ln" style="--d:.7s">同步到你的 iPhone，Live Photo 也行</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>6 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide" data-name="做法">
+  <div class="pic log" id="log"></div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.2s">这个 App，是我和<br>Claude Code 一起做的</span></h2>
+    <p class="s"><span class="ln" style="--d:.9s">从 ChatGPT 的原型开始，每次改动都来自一句人话</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>7 / 8</span></div>
+</section></div>
+
+<div class="cell"><section class="slide close" data-name="结尾">
+  <div class="pic"><img class="logo" src="../../../assets/brand/guangji-symbol.svg" alt=""></div>
+  <div class="words"><h2 class="t"><span class="ln" style="--d:.5s">原片不会被改<br>也不上传任何东西</span></h2>
+    <p class="s"><span class="ln" style="--d:1.3s">早期版本 · Apple 芯片 Mac · macOS 15+<br>想试试？评论区告诉我</span></p></div>
+  <div class="foot"><img src="../../../assets/brand/guangji-symbol.svg" alt=""><b>光集</b><span>8 / 8 · 与 DJI、Apple 无关</span></div>
+</section></div>
+
+</div>
+<script>
+const q = new URLSearchParams(location.search);
+const DUR = 3;                         // seconds of motion per card
+const render = q.has("render");
+document.body.classList.toggle("render", render);
+
+// Sliders for card 2.
+(function(){
+  let html = "";
+  for (let i = 0; i < 14; i++) {
+    const s = 2.6 + (i * 37 % 23) / 10, o = -((i * 53) % 30) / 10, to = 420 + (i * 71) % 400;
+    html += `<div class="row"><i></i><b></b><u style="--s:${s}s;--o:${o}s;--to:${to}px"></u></div>`;
+  }
+  document.getElementById("sliders").innerHTML = html;
+})();
+
+const LOG = [
+  ["4072608", "Baseline: ChatGPT prototype as received"],
+  ["f99fe13", "Rebuild the workbench UI"],
+  ["6aa164c", "Compact inspector and an adaptive coach"],
+  ["0d74df2", "Liquid Glass segmented controls"],
+  ["ad45c60", "Calmer, mostly neutral interface"],
+  ["c4ebd85", "Coach: stop calling high-key photos bad"],
+  ["786aa6c", "Find moved or renamed files"],
+  ["7a2d555", "自动 and a 简单 mode"],
+  ["760a567", "Save exports to Photos and share them"],
+  ["aa6cf20", "Drag the crop frame on the picture"],
+  ["7480183", "Website: flatter layout"],
+  ["cca616c", "Xiaohongshu launch pack"],
+];
+(function(){
+  const box = document.getElementById("log");
+  box.innerHTML = LOG.map(([h, m], i) => `<div class="row2" style="--d:${(0.15 + i * 0.2).toFixed(2)}s"><i>${h}</i><span>${m}</span></div>`).join("");
+})();
+
+const cells = [...document.querySelectorAll(".cell")];
+const slides = cells.map(c => c.querySelector(".slide"));
+const only = q.has("slide") ? Math.min(slides.length, Math.max(1, +q.get("slide"))) - 1 : -1;
+if (only >= 0) {
+  document.body.classList.add("single");
+  cells.forEach((c, i) => { c.style.display = i === only ? "" : "none"; });
+}
+function fit() {
+  if (only < 0 || render) return;
+  const k = Math.min(innerWidth / 1080, innerHeight / 1440);
+  slides[only].style.transform = `translate(-50%,-50%) scale(${k})`;
+}
+addEventListener("resize", fit); addEventListener("load", fit);
+
+let anims = null;
+function collect() { anims = slides.map(s => s.getAnimations({ subtree: true })); anims.forEach(l => l.forEach(a => a.pause())); }
+function seek(t) { if (!anims) collect(); slides.forEach((s, i) => anims[i].forEach(a => { a.currentTime = Math.max(0, t) * 1000; })); }
+
+addEventListener("load", () => {
+  collect(); fit();
+  const t0 = q.has("t") ? parseFloat(q.get("t")) : DUR;   // default: the finished card
+  seek(t0);
+  if (q.has("play") && only >= 0 && !render) {
+    let start = null;
+    const loop = (ts) => { start = start ?? ts; seek(((ts - start) / 1000) % (DUR + 1)); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+});
+</script>
+</body>
+</html>

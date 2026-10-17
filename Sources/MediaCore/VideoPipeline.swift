@@ -12,10 +12,10 @@ public enum VideoWorkError: Error, LocalizedError {
     case invalidRange, missingTrack, outputExists, failed(String)
     public var errorDescription: String? {
         switch self {
-        case .invalidRange: "片段起止时间或封面时间无效。"
-        case .missingTrack: "没有可用的视频或音频轨道。"
-        case .outputExists: "目标已存在，请选择新的文件名。"
-        case .failed(let detail): "媒体处理失败：\(detail)"
+        case .invalidRange: L("片段起止时间或封面时间无效。")
+        case .missingTrack: L("没有可用的视频或音频轨道。")
+        case .outputExists: L("目标已存在，请选择新的文件名。")
+        case .failed(let detail): L("媒体处理失败：\(detail)")
         }
     }
 }
@@ -62,6 +62,12 @@ public struct PreparedVideo {
     public let videoComposition: AVVideoComposition?
     public let audioMix: AVAudioMix
     public let duration: Double
+}
+
+public enum VideoCodecChoice: String, Codable, CaseIterable, Sendable {
+    case h264, hevc
+    public var title: String { self == .h264 ? L("H.264（兼容）") : L("HEVC（更小）") }
+    var preset: String { self == .h264 ? AVAssetExportPresetHighestQuality : AVAssetExportPresetHEVCHighestQuality }
 }
 
 public enum VideoPipeline {
@@ -128,7 +134,8 @@ public enum VideoPipeline {
             let previewSize = CGSize(width: previewWidth, height: previewHeight)
             let value = try await AVMutableVideoComposition.videoComposition(with: composition, applyingCIFiltersWithHandler: { request in
                 do {
-                    let settings = preview?.snapshot() ?? edits
+                    let showOriginal = preview?.showsOriginal == true
+                    let settings = showOriginal ? MediaEdits() : (preview?.snapshot() ?? edits)
                     // This path is deliberately SDR; the unfiltered AVPlayer path
                     // retains the source HDR transfer function for native playback.
                     // Rec.709 composition properties below ask AVFoundation to
@@ -137,7 +144,7 @@ public enum VideoPipeline {
                     // An HLG composition gives SDR frames an HDR container's
                     // headroom metadata. It does not make those source pixels
                     // HDR; tone mapping that metadata would darken white twice.
-                    let source = settings.hdrEffect && !sourceIsHDR ? request.sourceImage
+                    let source = settings.hdrEffect && !sourceIsHDR && !showOriginal ? request.sourceImage
                         : ColorPipeline.toneMap(request.sourceImage, sourceHeadroom: max(1, request.sourceImage.contentHeadroom))
                     // Scale before grading: 4K source decoding is retained, but
                     // interactive LUT/HDR/geometry work uses a bounded canvas.
@@ -177,6 +184,7 @@ public enum VideoPipeline {
     }
 
     public static func export(_ url: URL, to output: URL, clip: ClipSettings, edits: MediaEdits,
+                              codec: VideoCodecChoice = .h264,
                               progress: (@Sendable (Double) -> Void)? = nil) async throws {
         try Task.checkCancellation()
         guard output.isFileURL, !FileManager.default.fileExists(atPath: output.path) else { throw VideoWorkError.outputExists }
@@ -190,8 +198,8 @@ public enum VideoPipeline {
             progress?(1)
             return
         }
-        guard let exporter = AVAssetExportSession(asset: prepared.asset, presetName: AVAssetExportPresetHighestQuality) else {
-            throw VideoWorkError.failed("无法创建编码器")
+        guard let exporter = AVAssetExportSession(asset: prepared.asset, presetName: codec.preset) else {
+            throw VideoWorkError.failed(L("无法创建编码器"))
         }
         exporter.videoComposition = prepared.videoComposition; exporter.audioMix = prepared.audioMix
         exporter.audioTimePitchAlgorithm = .spectral
@@ -248,21 +256,21 @@ public enum VideoPipeline {
             channels.append((readAudio, writeAudio))
         }
         for (read, write) in channels {
-            guard reader.canAdd(read), writer.canAdd(write) else { throw VideoWorkError.failed("HDR 编码器不支持当前轨道") }
+            guard reader.canAdd(read), writer.canAdd(write) else { throw VideoWorkError.failed(L("HDR 编码器不支持当前轨道")) }
             reader.add(read); writer.add(write)
         }
-        guard writer.startWriting(), reader.startReading() else { throw writer.error ?? reader.error ?? VideoWorkError.failed("HDR 编码未开始") }
+        guard writer.startWriting(), reader.startReading() else { throw writer.error ?? reader.error ?? VideoWorkError.failed(L("HDR 编码未开始")) }
         writer.startSession(atSourceTime: .zero)
         do {
             var finished = Set<Int>()
             var reported = 0.0
             while finished.count < channels.count {
                 try Task.checkCancellation()
-                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed("HDR 编码中断") }
+                guard writer.status == .writing else { throw writer.error ?? VideoWorkError.failed(L("HDR 编码中断")) }
                 var advanced = false
                 for (index, channel) in channels.enumerated() where !finished.contains(index) && channel.1.isReadyForMoreMediaData {
                     if let sample = channel.0.copyNextSampleBuffer() {
-                        guard channel.1.append(sample) else { throw writer.error ?? VideoWorkError.failed("HDR 样本写入失败") }
+                        guard channel.1.append(sample) else { throw writer.error ?? VideoWorkError.failed(L("HDR 样本写入失败")) }
                         if index == 0 {
                             let fraction = min(0.99, CMSampleBufferGetPresentationTimeStamp(sample).seconds / prepared.duration)
                             if fraction - reported >= 0.02 { progress?(fraction); reported = fraction }
@@ -272,10 +280,10 @@ public enum VideoPipeline {
                 }
                 if !advanced { try await Task.sleep(for: .milliseconds(2)) }
             }
-            guard reader.status == .completed else { throw reader.error ?? VideoWorkError.failed("HDR 读取未完成") }
+            guard reader.status == .completed else { throw reader.error ?? VideoWorkError.failed(L("HDR 读取未完成")) }
             writer.endSession(atSourceTime: CMTime(seconds: prepared.duration, preferredTimescale: 60000))
             await writer.finishWriting()
-            guard writer.status == .completed else { throw writer.error ?? VideoWorkError.failed("HDR 导出未完成") }
+            guard writer.status == .completed else { throw writer.error ?? VideoWorkError.failed(L("HDR 导出未完成")) }
         } catch { reader.cancelReading(); writer.cancelWriting(); throw error }
     }
 }

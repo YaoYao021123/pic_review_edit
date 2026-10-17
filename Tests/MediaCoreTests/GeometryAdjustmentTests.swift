@@ -44,3 +44,30 @@ struct GeometryAdjustmentTests {
         try recipe.validate()
     }
 }
+
+struct CropMathTests {
+    let size = CGSize(width: 4000, height: 3000)
+
+    @Test func movingStopsAtTheEdgesAndMatchesTheSliders() {
+        var g = GeometryAdjustments(); g.cropScale = 0.5
+        let moved = CropMath.move(g, size: size, dx: 500, dy: -300)
+        let rect = moved.cropRect(in: size)
+        #expect(abs(rect.minX - 1500) <= 1 && abs(rect.minY - 450) <= 1)
+        let far = CropMath.move(g, size: size, dx: 99_999, dy: 99_999)
+        #expect(far.horizontal == 100 && far.vertical == 100)
+    }
+
+    @Test func cornerResizeKeepsRatioAndOppositeCorner() {
+        var g = GeometryAdjustments(); g.aspectRatio = 1
+        let before = g.cropRect(in: size)          // 3000 × 3000, centered
+        // Drag the top-right corner inwards by 600 px.
+        let resized = CropMath.resize(g, size: size, handle: (1, 1), dx: -600, dy: -100)
+        let after = resized.cropRect(in: size)
+        #expect(abs(after.width - after.height) <= 1)
+        #expect(abs(after.width - 2400) <= 2)
+        #expect(abs(after.minX - before.minX) <= 1 && abs(after.minY - before.minY) <= 1)
+        // Never smaller than a quarter, never larger than the picture.
+        #expect(CropMath.resize(g, size: size, handle: (1, 1), dx: -99_999, dy: 0).cropScale == 0.25)
+        #expect(CropMath.resize(resized, size: size, handle: (-1, -1), dx: -99_999, dy: 0).cropScale == 1)
+    }
+}

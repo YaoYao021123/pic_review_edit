@@ -1,0 +1,2 @@
+/* Simplified Chinese is the source language: the keys in the code are the Chinese text,
+   so this table only needs entries for explicit ids (String(localized:defaultValue:)). */

@@ -13,7 +13,7 @@ struct CollageDraftPane: Identifiable, Sendable {
 }
 
 struct CollageSheet: View {
-    var model: WorkbenchModel
+    let app: AppModel
     @UIState private var items: [CollageDraftPane] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -21,10 +21,10 @@ struct CollageSheet: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("拼图 Live").font(.system(size: 20, weight: .semibold))
                     Text("单画面 / 双拼 / 三拼 · 每格独立运动 · 统一 3 秒")
-                        .font(.system(size: 12)).foregroundStyle(.secondary)
+                        .font(.callout).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("取消") { model.showingCollage = false }.workstationButton()
+                Button("取消") { app.sheet = nil }.keyboardShortcut(.cancelAction)
             }
             ScrollView {
                 VStack(spacing: 18) {
@@ -36,13 +36,14 @@ struct CollageSheet: View {
                 }
             }.frame(maxHeight: 470)
             HStack(alignment: .center) {
-                Text("从上到下等宽拼接；预览为各格中间帧。继承各素材已保存的调色与裁切。\n本版导出静音 SDR；关闭窗口后可回工作台调整各格调色。")
-                    .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Text("从上到下等宽拼接；预览为各格中间帧。继承各素材已保存的调色与裁切。\n导出为静音 SDR，在后台进行。")
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Button("生成 \(items.count) 画面 Live") { model.exportCollage(items) }.workstationButton()
+                Button("生成 \(items.count) 画面 Live") { app.exportCollage(items) }.primaryButton()
+                    .keyboardShortcut(.defaultAction)
                     .disabled(items.isEmpty)
             }
-        }.padding(24).frame(width: 780).onAppear { items = model.collageDrafts }
+        }.padding(24).frame(width: 780).onAppear { items = app.collageDrafts }
     }
     private func move(_ id: UUID, by delta: Int) {
         guard let index = items.firstIndex(where: { $0.id == id }), items.indices.contains(index + delta) else { return }
@@ -79,10 +80,10 @@ private struct CollagePaneRow: View {
                         ForEach(speeds, id: \.self) { speed in Text(String(format: "%g×", speed)).tag(speed) }
                     }.labelsHidden().frame(width: 100).onChange(of: item.speed) { normalizeStart() }
                 }
-                Text(String(format: "源片段 %.2f–%.2f 秒 → 3 秒 · %@", item.start, item.start + 3 * item.speed,
-                    item.edits.lut?.name ?? "已保存的基础调色"))
-                    .font(.system(size: 11)).foregroundStyle(.secondary)
-            }.font(.system(size: 12))
+                Text(String(format: L("源片段 %.2f–%.2f 秒 → 3 秒 · %@"), item.start, item.start + 3 * item.speed,
+                    item.edits.lut?.name ?? L("已保存的基础调色")))
+                    .font(.caption).foregroundStyle(.secondary)
+            }.font(.callout)
         }
     }
     private func normalizeStart() {
@@ -107,7 +108,7 @@ private struct CollagePanePreview: View {
                     generator.maximumSize = CGSize(width: 640, height: 640)
                     let image = try await generator.image(at: CMTime(seconds: pane.start + 1.5 * pane.speed, preferredTimescale: 60000)).image
                     let graded = try ColorPipeline.grade(CIImage(cgImage: image), edits: pane.edits)
-                    return try ColorPipeline.sdrBitmap(graded, context: ColorPipeline.context())
+                    return try ColorPipeline.sdrBitmap(try ColorPipeline.geometry(graded, edits: pane.edits))
                 }.value
                 try Task.checkCancellation(); bitmap = value
             } catch { /* Optional cover preview does not block export. */ }

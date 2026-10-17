@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld 个文件</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld file</string>
+			<key>other</key>
+			<string>%lld files</string>
+		</dict>
+	</dict>
+	<key>%lld 张</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>%lld 张 · 已选用 %lld 张</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@n@ · %2$lld picked</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>%lld 张 · 选用 %lld · 排除 %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@n@ · %2$lld picked · %3$lld rejected</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>%lld 星</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld star</string>
+			<key>other</key>
+			<string>%lld stars</string>
+		</dict>
+	</dict>
+	<key>%lld 项导出进行中</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@ in progress</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld export</string>
+			<key>other</key>
+			<string>%lld exports</string>
+		</dict>
+	</dict>
+	<key>全部 %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>All %lld items</string>
+		</dict>
+	</dict>
+	<key>同一文件夹里另外 %lld 项也一并找回。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld other item in the same folder was found too.</string>
+			<key>other</key>
+			<string>%lld other items in the same folder were found too.</string>
+		</dict>
+	</dict>
+	<key>存到「照片」· %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Save to Photos · %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>导入 %lld 张</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Import %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld Photo</string>
+			<key>other</key>
+			<string>%lld Photos</string>
+		</dict>
+	</dict>
+	<key>导出 %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Export %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld Item</string>
+			<key>other</key>
+			<string>%lld Items</string>
+		</dict>
+	</dict>
+	<key>导出已选用的 %lld 张（项目里的版本）</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Export the %#@n@ (their project versions)</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld picked photo</string>
+			<key>other</key>
+			<string>%lld picked photos</string>
+		</dict>
+	</dict>
+	<key>将新建一个文件夹保存 %lld 项副本；原片不会被修改。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Copies of %#@n@ will be saved in a new folder; the originals won't be changed.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>已%@到 %lld 项%@。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$@ to %2$#@n@%3$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>已从素材库移除 %lld 个副本；硬盘上的文件未改动。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Removed %#@n@ from the library; the files on disk are untouched.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld copy</string>
+			<key>other</key>
+			<string>%lld copies</string>
+		</dict>
+	</dict>
+	<key>已从素材库移除 %lld 项；原文件未改动。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Removed %#@n@ from the library; the files themselves are untouched.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>已从项目「%@」移除 %lld 张；照片还在素材库里，自己的编辑不受影响。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Removed %2$#@n@ from “%1$@”. They’re still in your library, with their own edits unchanged.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>已把 %lld 张加入项目「%@」，颜色与项目一致。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Added %1$#@n@ to “%2$@”, with the project’s colors.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>已排除 %lld 个副本，保留 %@。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Rejected %1$#@n@ and kept %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld copy</string>
+			<key>other</key>
+			<string>%lld copies</string>
+		</dict>
+	</dict>
+	<key>已撤回 %lld 项；之后又单独修改过的素材保持不变。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Reverted %#@n@; anything you changed again afterwards was left as it is.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>已新建项目「%@」，共 %lld 张。在任意一张上调颜色，整个项目都会跟着变。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Created “%1$@” with %2$#@n@. Change the colors on any of them and the whole project follows.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>已新建项目「%@」，共 %lld 张，颜色都以「%@」为准。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Created “%1$@” with %2$#@n@, all taking their colors from “%3$@”.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+	<key>已添加 %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Added %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>应用到 %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Apply to %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld Item</string>
+			<key>other</key>
+			<string>%lld Items</string>
+		</dict>
+	</dict>
+	<key>把当前素材的所选调色复制到另外 %lld 项。曝光默认不同步（每张往往不同）；裁切、片段、封面、速度与声音保持各自设置。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Copies the chosen adjustments from the current item to %#@n@. Exposure isn't synced by default (it usually differs per shot); crop, clip, key photo, speed and audio stay as they are.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld other item</string>
+			<key>other</key>
+			<string>%lld other items</string>
+		</dict>
+	</dict>
+	<key>拼图 Live · %lld 画面</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Collage Live · %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld panel</string>
+			<key>other</key>
+			<string>%lld panels</string>
+		</dict>
+	</dict>
+	<key>素材库 · %lld 项</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Library · %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>还有 %lld 个导出没有完成</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld export hasn't finished</string>
+			<key>other</key>
+			<string>%lld exports haven't finished</string>
+		</dict>
+	</dict>
+	<key>颜色改动对项目里的 %lld 张都生效；曝光、裁剪和局部调整只改这一张。</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Color changes apply to all %#@n@ in the project; exposure, crop and local adjustments change only this one.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld photo</string>
+			<key>other</key>
+			<string>%lld photos</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -101,3 +101,17 @@ public enum ImageStraightener {
         return output
     }
 }
+
+/// Face rectangles for the coach (skin tones are judged on faces, not on
+/// every orange-brown pixel). Normalized, bottom-left origin like Core Image.
+public enum FaceDetector {
+    public static func faces(in url: URL) async throws -> [CGRect] {
+        let task = Task.detached(priority: .utility) { () -> [CGRect] in
+            let thumbnail = try ImageStraightener.thumbnail(ImageStraightener.source(url), maximumDimension: 1024)
+            let request = VNDetectFaceRectanglesRequest()
+            try VNImageRequestHandler(cgImage: thumbnail, orientation: .up).perform([request])
+            return (request.results ?? []).filter { $0.confidence > 0.6 }.map(\.boundingBox)
+        }
+        return try await withTaskCancellationHandler(operation: { try await task.value }, onCancel: { task.cancel() })
+    }
+}

@@ -66,7 +66,27 @@ struct MediaBenchmark {
             try await materializeGrade(Double(index % 20 - 10) * 0.45)
             graded.append(milliseconds(start.duration(to: clock.now)))
         }
+        // Every stage on, at the new screen-sized preview (2560 px).
+        let fullSession = try ImageGradeSession(url: url, maximumDimension: 2560)
+        var everything = MediaEdits(degrees: 1.5, lut: .warm, strength: 0.7)
+        everything.adjustments.exposure = 0.3; everything.adjustments.shadows = 20; everything.adjustments.vibrance = 15
+        everything.wheels.lift = WheelValue(x: 0.3, y: -0.2, master: 0.1)
+        everything.wheels.gain = WheelValue(x: -0.2, y: 0.2, master: 0)
+        everything.curves.master = [CurvePoint(x: 0, y: 0.03), CurvePoint(x: 0.5, y: 0.55), CurvePoint(x: 1, y: 0.97)]
+        everything.hsl[.orange, .saturation] = 15; everything.hsl[.blue, .hue] = -10
+        var stages: [Double] = []
+        for index in 0..<41 {
+            everything.adjustments.exposure = Double(index % 10) * 0.05
+            let start = clock.now
+            let frame = try await fullSession.frame(edits: everything)
+            guard let bitmap = gradeContext.createCGImage(frame.image, from: frame.image.extent,
+                format: .RGBAh, colorSpace: ColorPipeline.linearSpace) else { throw StraighteningError.renderFailed }
+            try consume(bitmap)
+            if index > 0 { stages.append(milliseconds(start.duration(to: clock.now))) }
+        }
         let result: [String: Any] = [
+            "all_stages_2560": summary(stages),
+            "all_stages_scope": "2560px preview; basic + wheels + curves + HSL + 17^3 LUT + rotation; CPU-visible RGBAh result",
             "fixture": "synthetic 4000x3000 JPEG; 1600px preview; 40 interleaved angles",
             "scope": "decode/render + materialized pixels, excludes SwiftUI/display latency",
             "cached_load_ms": loadMS, "legacy": summary(legacy), "cached": summary(cached),

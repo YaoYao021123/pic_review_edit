@@ -13,12 +13,12 @@ public struct LiveCollagePane: Sendable {
 /// Equal landscape panels stacked into a portrait Live; each panel keeps its own time and grade.
 public enum LiveCollagePipeline {
     public static func validate(_ panes: [LiveCollagePane]) throws -> Double {
-        guard (1...3).contains(panes.count) else { throw VideoWorkError.failed("拼图需选择 1–3 个视频或 Live 动态资源。") }
+        guard (1...3).contains(panes.count) else { throw VideoWorkError.failed(L("拼图需选择 1–3 个视频或 Live 动态资源。")) }
         let duration = panes[0].clip.outputDuration
-        guard duration.isFinite, (0.5...3.001).contains(duration) else { throw VideoWorkError.failed("拼图 Live 输出需为 0.5–3 秒。") }
+        guard duration.isFinite, (0.5...3.001).contains(duration) else { throw VideoWorkError.failed(L("拼图 Live 输出需为 0.5–3 秒。")) }
         for pane in panes {
-            guard abs(pane.clip.outputDuration - duration) < 0.001 else { throw VideoWorkError.failed("各画面变速后的时长必须一致。") }
-            guard !pane.edits.hdrEffect else { throw VideoWorkError.failed("当前拼图使用 SDR，请先关闭各画面的 HDR 效果。") }
+            guard abs(pane.clip.outputDuration - duration) < 0.001 else { throw VideoWorkError.failed(L("各画面变速后的时长必须一致。")) }
+            guard !pane.edits.hdrEffect else { throw VideoWorkError.failed(L("当前拼图使用 SDR，请先关闭各画面的 HDR 效果。")) }
         }
         return duration
     }
@@ -50,7 +50,7 @@ public enum LiveCollagePipeline {
         let cover = min(panes[0].clip.outputCover, duration - 1 / 30)
         let resources = try await LivePhotoPipeline.export(movie, to: output,
             clip: .init(start: 0, end: duration, cover: max(0, cover), originalVolume: 0), edits: .init())
-        guard var recipe = try JSONSerialization.jsonObject(with: Data(contentsOf: output.appendingPathComponent("recipe.json"))) as? [String: Any] else { throw VideoWorkError.failed("无法读取拼图配方。") }
+        guard var recipe = try JSONSerialization.jsonObject(with: Data(contentsOf: output.appendingPathComponent("recipe.json"))) as? [String: Any] else { throw VideoWorkError.failed(L("无法读取拼图配方。")) }
         recipe["type"] = "live-collage"; recipe["layout"] = "stacked"; recipe["audio"] = "muted"
         recipe["panes"] = try panes.enumerated().map { i, pane -> [String: Any] in
             if let lut = pane.edits.lut {
@@ -80,7 +80,7 @@ public enum LiveCollagePipeline {
             let asset = AVURLAsset(url: url)
             guard let source = try await asset.loadTracks(withMediaType: .video).first,
                   let target = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
-            else { throw VideoWorkError.failed("拼图缺少视频轨道。") }
+            else { throw VideoWorkError.failed(L("拼图缺少视频轨道。")) }
             try target.insertTimeRange(range, of: source, at: .zero)
             let size = try await source.load(.naturalSize), orientation = try await source.load(.preferredTransform)
             let bounds = CGRect(origin: .zero, size: size).applying(orientation)
@@ -104,7 +104,7 @@ public enum LiveCollagePipeline {
         video.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
         video.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
         guard let session = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
-        else { throw VideoWorkError.failed("无法创建拼图导出。") }
+        else { throw VideoWorkError.failed(L("无法创建拼图导出。")) }
         session.videoComposition = video
         let handle = CollageExportHandle(session)
         try await withTaskCancellationHandler {

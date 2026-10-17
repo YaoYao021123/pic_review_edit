@@ -1,0 +1,4 @@
+/* 简体中文 Info.plist strings. */
+"CFBundleDisplayName" = "Lucet 光集";
+"NSPhotoLibraryAddUsageDescription" = "光集把你导出的照片、视频和 Live Photo 存入「照片」，不会读取或修改你已有的照片。";
+"NSPhotoLibraryUsageDescription" = "光集把你导出的照片存入「照片」；只有在你选择“从「照片」导入”时，才会读取你挑选的照片供编辑。不会修改或删除「照片」里已有的内容。";

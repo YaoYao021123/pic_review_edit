@@ -49,10 +49,10 @@ public enum StraighteningError: Error, LocalizedError {
     case invalidGeometry, unreadableImage, renderFailed, pngRequired
     public var errorDescription: String? {
         switch self {
-        case .invalidGeometry: return "画幅或校正角度无效，当前支持 ±45°。"
-        case .unreadableImage: return "无法读取图片，请选择有效的图片文件。"
-        case .renderFailed: return "无法生成调正预览。"
-        case .pngRequired: return "当前导出格式为 PNG，请使用 .png 扩展名。"
+        case .invalidGeometry: return L("画幅或校正角度无效，当前支持 ±45°。")
+        case .unreadableImage: return L("无法读取图片，请选择有效的图片文件。")
+        case .renderFailed: return L("无法生成调正预览。")
+        case .pngRequired: return L("当前导出格式为 PNG，请使用 .png 扩展名。")
         }
     }
 }
@@ -81,23 +81,23 @@ public struct StraighteningAssessment: Codable, Sendable {
                                 revision: Int = 1, policy: StraighteningPolicy = .init()) throws -> Self {
         guard let radians, radians.isFinite, let confidence, confidence.isFinite else {
             return Self(status: .noReference, confidence: nil, proposedDegrees: nil, plan: nil,
-                        message: "未找到可靠水平参考，可使用角度滑块手动调正。", detectorRevision: revision)
+                        message: L("未找到可靠水平参考，可使用角度滑块手动调正。"), detectorRevision: revision)
         }
         let degrees = radians * 180 / .pi
         guard confidence >= policy.minimumConfidence, abs(degrees) <= policy.maximumDegrees else {
             return Self(status: .reviewRequired, confidence: confidence, proposedDegrees: degrees, plan: nil,
-                        message: "自动建议不够可靠，已保留当前调整；请手动确认。", detectorRevision: revision)
+                        message: L("自动建议不够可靠，已保留当前调整；请手动确认。"), detectorRevision: revision)
         }
         let plan = try StraighteningPlan(width: width, height: height, rotationRadians: radians)
         guard plan.cropLossFraction <= policy.maximumCropLoss else {
             return Self(status: .reviewRequired, confidence: confidence, proposedDegrees: degrees, plan: nil,
-                        message: "自动调正需要裁掉较多画面，已保留当前调整；请手动确认。", detectorRevision: revision)
+                        message: L("自动调正需要裁掉较多画面，已保留当前调整；请手动确认。"), detectorRevision: revision)
         }
         if abs(degrees) < policy.minimumDegrees {
             return Self(status: .alreadyLevel, confidence: confidence, proposedDegrees: degrees, plan: nil,
-                        message: "检测结果接近水平，无需自动调整。", detectorRevision: revision)
+                        message: L("检测结果接近水平，无需自动调整。"), detectorRevision: revision)
         }
         return Self(status: .ready, confidence: confidence, proposedDegrees: degrees, plan: plan,
-                    message: "已生成调正建议，可微调角度或恢复原片。", detectorRevision: revision)
+                    message: L("已生成调正建议，可微调角度或恢复原片。"), detectorRevision: revision)
     }
 }

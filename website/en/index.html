@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucet · Photo and video color for the Mac, no photography class required</title>
+<meta name="description" content="Lucet is a Mac app for adjusting photos, videos and Live Photos from DJI cameras and iPhones: one-click Auto, six plain sliders, presets you can see, local adjustments, and lessons that use your own photo. Saves straight to Photos.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d0d0e">
+<!-- Social previews need absolute URLs; they assume the site lives at https://yaoyao021123.github.io/lucet/ -->
+<link rel="canonical" href="https://yaoyao021123.github.io/lucet/en/">
+<link rel="alternate" hreflang="en" href="https://yaoyao021123.github.io/lucet/en/">
+<link rel="alternate" hreflang="zh-CN" href="https://yaoyao021123.github.io/lucet/">
+<link rel="alternate" hreflang="x-default" href="https://yaoyao021123.github.io/lucet/en/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lucet 光集">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:url" content="https://yaoyao021123.github.io/lucet/en/">
+<meta property="og:title" content="Lucet · Let your moments shine.">
+<meta property="og:description" content="One-click Auto, six plain sliders, presets you can see, saved straight to Photos. A Mac color tool for DJI and iPhone shooters, no photography class required.">
+<meta property="og:image" content="https://yaoyao021123.github.io/lucet/assets/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Lucet icon, four aperture blades, next to the name Lucet 光集 and its tagline.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lucet · Let your moments shine.">
+<meta name="twitter:description" content="One-click Auto, six plain sliders, presets you can see, saved straight to Photos. No photography class required.">
+<meta name="twitter:image" content="https://yaoyao021123.github.io/lucet/assets/og.jpg">
+<meta name="twitter:image:alt" content="The Lucet icon and tagline: Let your moments shine.">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/app-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lucet 光集","alternateName":["Lucet","光集","Guangji"],
+ "applicationCategory":"PhotographyApplication","operatingSystem":"macOS 15 or later (Apple silicon)",
+ "inLanguage":["en","zh-CN"],"description":"A Mac app for adjusting photos, videos and Live Photos, made for people without a photography background."}
+</script>
+<style>
+:root{
+  --bg:#0d0d0e; --text:#f2f0e8; --muted:#a8a59c; --faint:#77746c;
+  --line:rgba(255,255,255,.12); --radius:12px; --max:1080px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.7 var(--font);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+.wrap{width:min(var(--max),100% - 40px);margin:0 auto}
+section{padding:104px 0}
+h1,h2,h3,.lead{text-wrap:balance}
+h1,h2,h3{line-height:1.2;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(32px,6vw,64px);font-weight:700}
+h2{font-size:clamp(26px,4vw,40px);font-weight:650}
+h3{font-size:20px;font-weight:600}
+p{margin:0}
+.eyebrow{color:var(--muted);font-size:14px;letter-spacing:.08em;margin-bottom:14px}
+.lead{color:var(--muted);font-size:clamp(17px,2vw,21px);max-width:40em}
+.small{font-size:14px;color:var(--faint)}
+.center{text-align:center}
+.center .lead{margin:16px auto 0}
+
+/* The page stays flat: no filled cards. Structure comes from spacing and a few thin rules. */
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);background:rgba(13,13,14,.72);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;text-decoration:none;font-size:18px}
+.brand img{width:26px;height:26px}
+nav .links{display:flex;gap:22px;margin-left:auto;font-size:15px;color:var(--muted);align-items:center}
+nav .links a{text-decoration:none}
+nav .links a:hover{color:var(--text)}
+@media(max-width:720px){nav .links a:not(.cta){display:none}}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font:inherit;font-size:16px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--text);color:#1a1a18}
+.btn.primary:hover{background:#fff}
+.btn.glass{border-color:rgba(255,255,255,.3);color:var(--text)}
+.btn.glass:hover{border-color:rgba(255,255,255,.6)}
+.btn.small-btn{padding:7px 16px;font-size:14px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+/* screenshots: one soft edge, nothing wrapped around them */
+.window,.shot img,.compare{border-radius:var(--radius);overflow:hidden;box-shadow:0 0 0 1px var(--line),0 28px 60px -30px #000}
+.window img{width:100%}
+
+.hero{padding:76px 0 24px;text-align:center}
+.hero .lead{margin:22px auto 0}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+.hero .note{margin-top:16px}
+.hero .window{margin:60px auto 0;max-width:1040px}
+
+.story .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:start;margin-top:40px}
+.story blockquote{margin:0;font-size:clamp(20px,2.4vw,26px);line-height:1.6;font-weight:500}
+.story blockquote span{color:var(--muted)}
+.gap div{padding:20px 0;border-top:1px solid var(--line)}
+.gap div:last-child{border-bottom:1px solid var(--line)}
+.gap b{display:block;margin-bottom:2px;color:var(--muted)}
+.gap p{font-size:15px;color:var(--faint)}
+.gap .us b{color:var(--text)}
+.gap .us p{color:var(--muted)}
+@media(max-width:860px){.story .grid{grid-template-columns:1fr;gap:36px}}
+
+.feature{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center;padding:64px 0}
+.feature.reverse{grid-template-columns:1.1fr 1fr}
+.feature.reverse .text{order:2}
+.feature.stack{grid-template-columns:1fr;gap:40px}
+.feature.stack .text{max-width:42em}
+.feature .text p{color:var(--muted);margin-top:14px}
+.feature .text ul{margin:18px 0 0;padding:0;list-style:none;color:var(--muted);font-size:16px}
+.feature .text li{padding-left:20px;position:relative;margin-top:8px}
+.feature .text li::before{content:"";position:absolute;left:2px;top:.85em;width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.feature .kicker{font-size:14px;color:var(--faint);letter-spacing:.06em;margin-bottom:10px}
+.shot{display:flex;justify-content:center}
+.shot img{width:min(100%,430px)}
+@media(max-width:860px){.feature,.feature.reverse{grid-template-columns:1fr;gap:32px;padding:44px 0}.feature.reverse .text{order:0}}
+
+.compare{position:relative;aspect-ratio:1024/576;background:#000;user-select:none;touch-action:pan-y}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.compare .after{clip-path:inset(0 0 0 var(--pos,50%))}
+.compare .line{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:2px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.5);pointer-events:none}
+.compare .line::after{content:"";position:absolute;top:50%;left:50%;width:36px;height:36px;margin:-18px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid #fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.compare .tag{position:absolute;top:12px;padding:3px 12px;border-radius:999px;font-size:13px;background:rgba(0,0,0,.55)}
+.compare .tag.l{left:12px}.compare .tag.r{right:12px}
+.compare input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.compare:has(input:focus-visible){outline:2px solid var(--text);outline-offset:3px}
+.compare-note{display:flex;gap:14px;align-items:center;margin-top:12px}
+.compare-note img{width:96px;border-radius:6px;box-shadow:0 0 0 1px var(--line)}
+nav .links .lang{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+.pair{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:start}
+.pair .shot img{width:100%}
+@media(max-width:860px){.pair{grid-template-columns:1fr}}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:36px 44px;margin-top:64px}
+.card{border-top:1px solid var(--line);padding-top:18px}
+.card h3{font-size:18px}
+.card p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.65}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px;margin-top:48px;counter-reset:s}
+.step{counter-increment:s}
+.step::before{content:counter(s);display:block;font-size:44px;line-height:1;font-weight:300;color:var(--faint);margin-bottom:16px}
+.step p{color:var(--muted);margin-top:8px;font-size:15px}
+
+.fit{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:44px}
+.fit>div{border-top:1px solid var(--line);padding-top:22px}
+.fit ul{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:16px}
+.fit li{margin-top:6px}
+@media(max-width:720px){.fit{grid-template-columns:1fr;gap:36px}}
+
+.commits{margin:0;font:15px/2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);overflow:auto;white-space:pre}
+.commits i{font-style:normal;color:var(--faint);margin-right:16px}
+.faq{max-width:760px;margin:40px auto 0}
+details{border-bottom:1px solid var(--line);padding:6px 0}
+details:first-child{border-top:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600;padding:16px 28px 16px 0;list-style:none;position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:4px;top:12px;font-size:24px;color:var(--muted);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);padding:0 0 18px;font-size:16px}
+details ol{color:var(--muted);padding-left:22px;margin:0 0 18px;font-size:16px}
+code{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);opacity:.9}
+pre{margin:0 0 18px;padding:0;overflow:auto;font:14px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+
+.download{text-align:center;border-top:1px solid var(--line)}
+.download img.icon{width:96px;height:96px;margin:0 auto 22px;border-radius:22px}
+.download .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px}
+.req{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;margin-top:24px;color:var(--faint);font-size:15px}
+footer{padding:40px 0 56px;border-top:1px solid var(--line);color:var(--faint);font-size:14px;line-height:1.8}
+footer .wrap{display:grid;gap:10px}
+</style>
+
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="../assets/guangji-symbol-dark.svg" alt="" width="26" height="26">Lucet</a>
+    <div class="links">
+      <a href="#why">Why</a>
+      <a href="#features">Features</a>
+      <a href="#dji">DJI footage</a>
+      <a href="#made">How it's made</a>
+      <a href="#faq">FAQ</a>
+      <a class="lang" href="../" lang="zh-CN" onclick="try{localStorage.setItem('lucet.lang','zh')}catch(e){}">中文</a>
+      <a class="btn primary small-btn cta" href="#download">Download</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">A Mac color tool for DJI and iPhone shooters</p>
+    <h1>Make your photos look great on a Mac,<br>no photography class required.</h1>
+    <p class="lead">One-click Auto, six plain sliders and presets you can see, then save straight to Photos. Photos, videos and Live Photos all work, and the full pro tools are there when you want to go deeper.</p>
+    <div class="actions">
+      <a class="btn primary" href="#download">Download for Mac</a>
+      <a class="btn glass" href="#features">See what it does</a>
+    </div>
+    <p class="small note">Apple silicon Mac · macOS 15 or later · English and Chinese</p>
+    <div class="window">
+      <img src="../assets/en/shot-edit.jpg" width="2940" height="1514" alt="Lucet's editor: the library on the left, an aerial photo of an autumn valley in the middle, preset thumbnails and six simple sliders on the right">
+    </div>
+  </div>
+</section>
+
+<section class="story" id="why">
+  <div class="wrap">
+    <p class="eyebrow">Why Lucet exists</p>
+    <h2>Easy on a phone. Missing on the Mac.</h2>
+    <div class="grid">
+      <blockquote>
+        I shoot with DJI gear. When I wanted to adjust the color and tone, I found that DJI Mimo only exists for phones<span> (iOS and Android, as of October 2026)</span>. To edit on a big screen, I had to go back to my phone.
+        <br><br>
+        Lightroom and Photoshop can do anything, of course. But the first thing you see is dozens of sliders you don't understand.
+        <br><br>
+        <span>Lucet aims for the middle: as simple as a phone app, on your Mac, with someone beside you to explain when you want to learn.</span>
+      </blockquote>
+      <div class="gap">
+        <div><b>Phone editing apps</b><p>Quick to learn, but the screen is small and the footage has to get onto your phone first.</p></div>
+        <div><b>Pro software</b><p>Powerful, which also means facing dozens of settings the first time you open it.</p></div>
+        <div class="us"><b>Lucet</b><p>Start with Auto and six sliders on your Mac's big screen, open the full tools when you need them, and learn as you go.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">Features</p>
+      <h2>Start simple. Go deeper when you want.</h2>
+      <p class="lead">You get the handful of controls you'll use most. Everything else is still there, just tucked away.</p>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">One-click Auto</p>
+        <h3>Click Auto and start from a photo that already works</h3>
+        <p>Lucet looks at this photo's own brightness and color, then sets exposure, tone, white balance and color for you. It holds back:</p>
+        <ul>
+          <li>Naturally bright photos, like white backdrops and snow, stay bright instead of turning gray</li>
+          <li>Night stays night and sunsets stay warm, so the mood survives</li>
+          <li>Not happy? Press ⌘Z to undo, or <code>\</code> to see the original</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="../assets/before.jpg" width="1024" height="576" alt="An autumn hillside before Auto" loading="lazy">
+          <img class="after" src="../assets/after.jpg" width="1024" height="576" alt="The same hillside after Auto" loading="lazy">
+          <span class="tag l">Original</span><span class="tag r">Auto</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="Drag to compare before and after Auto">
+        </div>
+        <p class="small" style="margin-top:12px">Drag to compare. This is Lucet's real Auto result, with no extra retouching.</p>
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">Six sliders · Preset thumbnails</p>
+        <h3>Pick a look by seeing it, not by trial and error</h3>
+        <p>Every preset previews on your own photo. Click to apply; undo if you don't like it. Simple mode has just six sliders: Brightness, Contrast, Highlights, Shadows, Warmth and Vividness, each explained in one plain sentence.</p>
+        <ul>
+          <li><b>AI Look</b>: a small neural network looks at the whole photo and makes a grade just for it, computed on your Mac, nothing uploaded</li>
+          <li>Save your own look as a preset and apply it to other photos in one click</li>
+          <li>Copy one photo's adjustments to a whole batch; exposure isn't copied by default</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="../assets/en/panel-presets.jpg" width="660" height="880" alt="Lucet's right-hand panel: five preset thumbnails and six simple sliders" loading="lazy"></div>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">Local adjustments</p>
+        <h3>Change the sky, leave the ground alone</h3>
+        <p>Often only part of a photo needs fixing: a sky that's too bright, a face that's too dark. Local adjustments limit the sliders to the area you mark:</p>
+        <ul>
+          <li><b>Gradient</b>: fades from one line to another, most often to darken a sky</li>
+          <li><b>Ellipse</b>: brighten a subject, or invert it to darken the surroundings</li>
+          <li><b>Brush</b>: adjust wherever you paint; hold ⌥ to erase</li>
+          <li><b>Subject</b>: finds people, animals and objects in front automatically; invert it for the background</li>
+          <li>Each layer has its own exposure, contrast, highlights, shadows, temperature, saturation, clarity, dehaze and more; “Show mask” paints its area red</li>
+          <li>Masks stick to the picture: crop or rotate later and they stay in place</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="../assets/sky-before.jpg" width="1200" height="675" alt="Before: a wetland at sunset with a bright sky" loading="lazy">
+          <img class="after" src="../assets/sky-after.jpg" width="1200" height="675" alt="After one gradient darkens the sky: more depth in the clouds, the ground unchanged" loading="lazy">
+          <span class="tag l">Original</span><span class="tag r">Sky gradient</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="Drag to compare before and after the local adjustment">
+        </div>
+        <p class="small" style="margin-top:12px">One gradient: sky exposure −0.7, highlights −45, saturation +18; the ground is untouched. Real output from Lucet.</p>
+      </div>
+    </div>
+    <div class="window" style="margin-bottom:24px">
+      <img src="../assets/en/shot-local.jpg" width="2415" height="1514" alt="Dragging the gradient's two lines on the picture; the layer's sliders on the right" loading="lazy">
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">Remove</p>
+        <h3>Something in the way? Paint it out</h3>
+        <p>Brush over a wire, a passer-by, litter or a dust spot with Remove. When you let go, Lucet finds similar texture nearby and fills the spot in naturally.</p>
+        <ul>
+          <li>Classic PatchMatch completion, computed on your Mac: no model download, nothing uploaded</li>
+          <li>The filled area follows your color adjustments like the rest of the photo</li>
+          <li>Works best on smaller things; remove large areas in a few goes</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="../assets/sky-before.jpg" width="1200" height="675" alt="Before: a wetland at sunset with a sign in the lower right" loading="lazy">
+          <img class="after" src="../assets/remove-after.jpg" width="1200" height="675" alt="After: the sign is filled in with the surrounding grass and water" loading="lazy">
+          <span class="tag l">Original</span><span class="tag r">Sign removed</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="Drag to compare before and after Remove">
+        </div>
+        <p class="small" style="margin-top:12px">Three brush strokes over the sign. Real output from Lucet.</p>
+      </div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">Drag to crop</p>
+        <h3>Drag right on the photo, just like in the Photos app</h3>
+        <p>Open Crop and the whole photo appears with the crop frame on top: drag the frame to move it and a corner to resize it, and the aspect ratio holds. Straighten, rotate and flip live here too, and Lucet tells you when the horizon is tilted.</p>
+      </div>
+      <div class="window">
+        <img src="../assets/en/shot-crop.jpg" width="2415" height="1514" alt="Dragging the crop frame on the picture to crop an aerial photo square" loading="lazy">
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">Match colors · Export a LUT</p>
+        <h3>Like another photo's colors? Bring this one closer</h3>
+        <p>Pick a photo in your library whose colors you like, and Lucet moves this photo's overall brightness and color toward it. The result is a LUT, so the Strength slider decides how far to go, and you can undo it.</p>
+        <ul>
+          <li>It aligns the two photos' averages and spread in Lab color space (Reinhard color transfer); nothing is invented</li>
+          <li>It also works the other way: export your adjustments as a <code>.cube</code> LUT for video in DaVinci Resolve, Final Cut Pro or Premiere</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="../assets/match-before.jpg" width="1200" height="675" alt="Before matching: an autumn river valley" loading="lazy">
+          <img class="after" src="../assets/match-after.jpg" width="1200" height="675" alt="After moving toward a sunset photo's colors: bluer water, more golden trees" loading="lazy">
+          <span class="tag l">Original</span><span class="tag r">Matched</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="Drag to compare before and after matching colors">
+        </div>
+        <div class="compare-note">
+          <img src="../assets/match-reference.jpg" width="640" height="360" alt="The reference: a wetland at sunset" loading="lazy">
+          <p class="small">The reference is the sunset above. Strength 80%, real output from Lucet.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">Projects</p>
+        <h3>One job, one project, one set of colors</h3>
+        <p>Put a trip, a post or a client shoot in one project. Change the colors on any photo and the whole project follows; exposure, crop and local adjustments stay with each photo.</p>
+        <ul>
+          <li>Even Out moves every photo toward the group's middle brightness and white balance, so the set looks shot together</li>
+          <li>“This photo” changes one picture on its own when it needs to be different</li>
+          <li>Export Project saves the picked photos (or all of them) into a folder named after the project</li>
+          <li>A photo can be in several projects, with its own version in each</li>
+        </ul>
+      </div>
+      <div class="window"><img src="../assets/en/shot-project.jpg" width="2938" height="1100" alt="A Lucet project: the project list in the sidebar and eight photos sharing one look" loading="lazy"></div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">Duplicates & similar shots · Compare and cull</p>
+        <h3>Took several shots of the same scene? See them side by side and keep the best</h3>
+        <p>Turn on “Duplicates & Similar” and Lucet groups shots with nearly the same framing and colors, plus photos the same camera took less than 2 seconds apart. Click Compare to see them side by side, press P to pick and X to reject, or choose “Keep Only This One”.</p>
+        <ul>
+          <li>Files that are exactly the same (one photo imported twice, a Finder copy; videos too) come first, ready to reject or remove from the library in one click; files on disk are never deleted</li>
+          <li>“Zoom to 100%” zooms every photo to the same spot and pans them together, so you can tell which is sharpest</li>
+          <li>The comparison runs on your Mac and takes under a second for dozens of photos</li>
+        </ul>
+      </div>
+      <div class="pair">
+        <div class="window"><img src="../assets/en/shot-similar.jpg" width="2415" height="960" alt="The Duplicates &amp; Similar view: three photos of the same scene grouped together" loading="lazy"></div>
+        <div class="shot"><img src="../assets/en/sheet-compare.jpg" width="1920" height="1488" alt="Compare and cull: three similar photos side by side, ready to pick, reject or keep only one" loading="lazy"></div>
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">Learn as you edit</p>
+        <h3>Not a tutorial. A lesson about the photo in front of you.</h3>
+        <p>Lucet reads the photo and points out what's really going on: where it's overexposed, where there's a color cast, how many degrees the horizon tilts, with an adjustment you can try in one click. Hover over a slider's name and the picture highlights only what it affects.</p>
+        <ul>
+          <li>Interactive lessons: a few minutes each, using animation and your own photo to explain the histogram, exposure, curves, white balance, aperture, focal length, video frame rates and Log, while you try it</li>
+          <li>Drag any light or dark slider and the histogram marks which part it changes, from darkest to brightest</li>
+          <li>Choose Beginner, Intermediate or Advanced and the explanations change depth</li>
+          <li>Ask anything, like “Why does the sky look gray?” (optional, uses your own AI key, off by default)</li>
+          <li>Your learning history stays on your Mac</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="../assets/en/panel-learn.jpg" width="660" height="870" alt="The Learn panel: tips about this photo, Ask About This Photo, and the learning level" loading="lazy"></div>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">Save to Photos · Live Photos</p>
+        <h3>Done editing? One step back to your iPhone.</h3>
+        <p>Exports go straight into Photos on your Mac by default, and with iCloud Photos on they sync to your iPhone. Trim a video to 3 seconds or less and it becomes a real Live Photo. Files work too, or share directly with the system share sheet.</p>
+        <ul>
+          <li>JPEG, HEIC or PNG, optionally resized for social media</li>
+          <li>HDR photos export with a gain map and stay HDR, edits included</li>
+          <li>Export presets, file-name patterns (date, number, size) and an optional text watermark</li>
+          <li>Capture time and camera info are kept; location is removed by default</li>
+          <li>Exports run in the background while you move on to the next photo</li>
+          <li>Originals are never changed; every export is a new copy</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="../assets/en/sheet-export.jpg" width="1000" height="1404" alt="The export window: save to Photos or a folder, with format, quality, size, file name and watermark options" loading="lazy" style="width:min(100%,440px)"></div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">And also</p>
+        <h3>A film look, a history you can go back through, and search by what's in the picture</h3>
+        <ul>
+          <li><b>Dehaze, Fade, Grain, Black &amp; White</b> in Full mode's effects; Dehaze estimates how hazy each area is with the dark-channel method</li>
+          <li><b>History</b>: every change has a name; click one to go back to it, even after quitting</li>
+          <li><b>Search by content</b>: type “sky”, “dog” or “sunset” in the library and photos showing it appear, recognized on your Mac</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dji">
+  <div class="wrap">
+    <div class="feature reverse" style="padding:0">
+      <div class="text">
+        <p class="kicker">Ready for DJI footage</p>
+        <h3>Edit right after shooting, and see what you shot</h3>
+        <p>Lucet opens the MP4 and MOV files DJI drones and cameras produce. The Info tab lists the codec (such as HEVC Main 10), bit depth, bitrate, frame rate, color space and recording device, so you don't need another app to check.</p>
+        <ul>
+          <li>Import DJI's official <code>.cube</code> creative LUTs; tested with the Pocket 3 Spring and Winter Pro LUTs</li>
+          <li>Export the colors you set in Lucet as a <code>.cube</code> and keep using them in DaVinci Resolve and other editors</li>
+          <li>Trim videos, change speed (0.5–4×), or cut 3 seconds into a Live Photo</li>
+          <li>10-bit HEVC opens normally; HDR video previews, and highlight expansion is experimental</li>
+        </ul>
+        <p class="small" style="margin-top:16px">Still planned: applying the conversion LUT to D-Log footage automatically (for now you import the matching LUT yourself).</p>
+      </div>
+      <div class="shot"><img src="../assets/en/panel-info.jpg" width="660" height="1330" alt="The Info panel: a DJI video's codec, frame rate, bitrate, color space and bit depth" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section id="made">
+  <div class="wrap">
+    <div class="feature" style="padding:0">
+      <div class="text">
+        <p class="kicker">How it's made</p>
+        <h2>Built with AI, one plain sentence at a time</h2>
+        <p>Lucet's first version was a prototype written by ChatGPT. I handed it to Claude Code and asked it to find the problems first, then fix them step by step: large folders stopped freezing the app, the interface was rebuilt into what you see now, and Auto, preset thumbnails and learn-as-you-edit were added. This web page and the promo video were made the same way: written with web technology, then rendered.</p>
+        <p>The most interesting part: almost every change started with an ordinary sentence, like “this blue is too bright”, “not enough information” or “too many boxes”. You don't have to learn to code first. Describe the feeling clearly and let the AI try, change and test.</p>
+        <p>AI makes mistakes too, and they can look convincing. A photo of a latte on a white table was once judged “too bright overall”, with a suggestion to lower exposure by 1.5 stops, even though a white table is supposed to be bright. Problems like that showed up the moment the app was really used, and each was fixed and covered by a test.</p>
+        <p>There's a partner, too: the partner's web edition of Lucet (open source, Apache-2.0) has algorithms for grouping similar shots, matching colors and local masks, and they've been ported into this Mac app.</p>
+        <p>So Lucet would like to be built with you as well. Share ideas in GitHub Issues, and if you build things with Claude Code or other AI tools, tell us how you work.</p>
+        <p style="margin-top:26px"><a class="btn glass" href="https://github.com/YaoYao021123/lucet/issues">Share your ideas on GitHub</a></p>
+      </div>
+      <pre class="commits" aria-label="Excerpts from Lucet's real commit history, starting from the ChatGPT prototype"><i>4072608</i>Baseline: ChatGPT prototype as received
+<i>f99fe13</i>Rebuild the workbench UI
+<i>6aa164c</i>Compact inspector and an adaptive coach
+<i>0d74df2</i>Liquid Glass segmented controls
+<i>ad45c60</i>Calmer, mostly neutral interface
+<i>c4ebd85</i>Coach: stop calling high-key photos bad
+<i>786aa6c</i>Find moved or renamed files
+<i>7a2d555</i>Auto and a Simple mode
+<i>760a567</i>Save exports to Photos and share them
+<i>aa6cf20</i>Drag the crop frame on the picture
+<i>7480183</i>Website: flatter layout
+<i>cca616c</i>Xiaohongshu launch pack
+<i>6adee37</i>Interactive lessons on your own photo
+<i>20f2a4d</i>English interface
+<i>ee78815</i>Export the grade as a LUT, match colors
+<i>d12af94</i>Similar shots and bursts
+<i>79f4324</i>Local adjustments</pre>
+    </div>
+  </div>
+</section>
+
+<section class="story" id="name">
+  <div class="wrap">
+    <p class="eyebrow">Why learn while editing · The name</p>
+    <h2>Once it looks good, you'll want to know why.</h2>
+    <div class="grid">
+      <blockquote>
+        A one-click filter can make a photo look good, but next time you still won't know why.
+        <br><br>
+        The Douyin photography creator Zhang Xiaoyang explains histograms, curves and aperture with animation more clearly than any manual, but there are only a few videos and they can't cover all the basics. <span>So we built that way of teaching into the app: watch your own photo's pixels pile up into a histogram, drag the aperture and see the background blur. We write and draw every lesson ourselves, and new ones keep coming.</span>
+      </blockquote>
+      <div class="gap">
+        <div><b>Lucet</b><p>Latin for “it shines”.</p></div>
+        <div><b>光集 (Guāngjí)</b><p>“Gathering light”. A photo is light that was kept.</p></div>
+        <div class="us"><b>Let your moments shine.</b><p>让每一个瞬间，自有光彩。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">Three steps</p>
+      <h2>Import, click Auto, save</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Import</h3><p>Drag a folder of photos or videos into the window. Photos and videos with the same name become one Live Photo. Rate, pick and reject to find the good ones first.</p></div>
+      <div class="step"><h3>Adjust</h3><p>Press <code>A</code> for Auto, choose a preset and fine-tune with six sliders. Press <code>\</code> to see the original.</p></div>
+      <div class="step"><h3>Save</h3><p>Save to Photos or share with friends. Come back later and every adjustment is still there, ready to undo.</p></div>
+    </div>
+
+    <div class="window" style="margin-top:56px">
+      <img src="../assets/en/shot-browse.jpg" width="2415" height="960" alt="Lucet's library: a thumbnail grid of drone photos, a Live Photo and a DJI video" loading="lazy">
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>Browse and organize</h3><p>Thumbnails show each photo as edited. Ratings 0–5, pick and reject, filters by type and rating, and file-name search.</p></div>
+      <div class="card"><h3>Full mode</h3><p>Scopes (histogram, waveform, parade, vectorscope), color wheels, curves, the HSL color mixer and creative LUTs, in a fixed order with every step switchable for comparison.</p></div>
+      <div class="card"><h3>Collage Live</h3><p>Combine several 3-second clips into one Live Photo, with each panel graded on its own.</p></div>
+      <div class="card"><h3>Undo and versions</h3><p>Undo and redo any time, and keep several named versions of a photo to return to.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">Is it for you?</p>
+      <h2>Straight answers before you download</h2>
+    </div>
+    <div class="fit">
+      <div>
+        <h3>A good fit if you</h3>
+        <ul>
+          <li>Shoot with DJI or iPhone and want to make it look good on your Mac before sharing</li>
+          <li>Find Lightroom and Photoshop too complex and just want brightness, color and a crop</li>
+          <li>Want to finally understand what “highlights” and “shadows” really do</li>
+          <li>Like tools that never touch the original and can always undo</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Not a fit yet if you</h3>
+        <ul>
+          <li>Need multi-track video editing, transitions or titles</li>
+          <li>Do in-depth RAW development or commercial-scale batch retouching</li>
+          <li>Use an Intel Mac or a system older than macOS 15</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap center">
+    <p class="eyebrow">Privacy</p>
+    <h2>Your photos stay on your Mac</h2>
+    <p class="lead">Lucet has no account and no analytics, and uploads no photos. The only thing that goes online is the optional “Ask About This Photo”: it's off by default, and after you add your own key it sends a small preview (which you can turn off) and the adjustment settings only when you click Ask. Location is never included.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center"><p class="eyebrow">FAQ</p><h2>You might be wondering</h2></div>
+    <div class="faq">
+      <details><summary>Will it change my original photos?</summary><p>No. Every adjustment is saved as a small recipe file, and a new copy is made only when you export. Your originals, their names and locations stay as they are. If you move or rename an original in Finder, Lucet shows “Original file not found”; point it to the new location and all adjustments are kept.</p></details>
+      <details><summary>What do I need to run it?</summary><p>A Mac with Apple silicon (M-series) running macOS 15 or later. On macOS 26 it uses the Liquid Glass look.</p></details>
+      <details><summary>Is the app in English?</summary><p>Yes. Lucet follows your Mac's language and shows English or Simplified Chinese. You can also switch it under Lucet 光集 › Language · 语言 in the menu bar.</p></details>
+      <details><summary>Which files does it open?</summary><p>Photos: JPEG, HEIC, PNG, TIFF, WebP, DNG and common camera RAW files (experimental). Videos: MP4, MOV and others macOS can decode. A HEIC or JPG with a same-name MOV is recognized as a Live Photo.</p></details>
+      <details><summary>Can it save straight to my iPhone?</summary><p>Choose “Save to Photos” when exporting; with iCloud Photos on, it syncs to your iPhone. Live Photos are saved as real Live Photos.</p></details>
+      <details><summary>It says the developer can't be verified. What now?</summary><p>The current version isn't notarized by Apple yet, so macOS blocks it the first time. That's expected; here's how to allow it:</p>
+        <ol>
+          <li>Drag Lucet 光集 into Applications, double-click it, and click Done when the warning appears</li>
+          <li>Open System Settings › Privacy & Security and scroll to the bottom</li>
+          <li>Next to Lucet 光集, click Open Anyway and confirm</li>
+        </ol>
+        <p>You only need to do this once. You can also build it from source; see Download below.</p></details>
+      <details><summary>What is “Ask About This Photo”?</summary><p>An optional feature: ask in plain language, like “How do I get a film look?”, and Claude answers based on your photo with adjustments you can try in one click. It uses your own Anthropic API key (stored in your Mac's Keychain), billed to your account, and it's off by default. Without it, everything else in Lucet works the same.</p></details>
+      <details><summary>Is it affiliated with DJI?</summary><p>No. Lucet is independent software, not a DJI product, and isn't authorized or endorsed by DJI. DJI, Mimo and other names are trademarks of their owners, used here only to describe which files Lucet opens.</p></details>
+      <details><summary>I found a problem, or I want a feature</summary><p>Tell us in GitHub Issues; a screenshot helps a lot.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="download" id="download">
+  <div class="wrap">
+    <img class="icon" src="../assets/app-icon.png" width="512" height="512" alt="The Lucet 光集 icon">
+    <h2>Let your moments shine.</h2>
+    <p class="lead">An early version. Try it, and tell us where it gets in your way.</p>
+    <div class="actions">
+      <a class="btn primary" href="https://github.com/YaoYao021123/lucet/releases/latest">Download Lucet (GitHub)</a>
+      <a class="btn glass" href="https://github.com/YaoYao021123/lucet">View source</a>
+    </div>
+    <div class="req"><span>Apple silicon Mac</span><span>macOS 15 or later</span><span>English and Chinese</span><span>Allow it once on first launch; see the FAQ above</span></div>
+    <div class="faq" style="text-align:left;margin-top:44px">
+      <details><summary>Want to build it from source?</summary>
+        <p>Install the Xcode Command Line Tools (<code>xcode-select --install</code>).</p>
+<pre>git clone https://github.com/YaoYao021123/lucet.git
+cd lucet
+bash scripts/run-workbench.sh</pre>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Lucet 光集 · Color for photos, videos and Live Photos</div>
+    <div>Lucet 光集 is independent software, not affiliated with or endorsed by DJI, Apple, Adobe, Anthropic or OpenAI. DJI, Mimo, iPhone, Live Photo, Lightroom, Photoshop, Claude, ChatGPT and other names belong to their owners.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
+  document.querySelectorAll('.compare').forEach(function(box){
+    var input = box.querySelector('input');
+    function set(){ box.style.setProperty('--pos', input.value + '%'); }
+    input.addEventListener('input', set); set();
+    if (reduce) return;
+    // A gentle hint on first view: sweep once so people know it can be dragged.
+    var done = false;
+    new IntersectionObserver(function(es, obs){
+      if (done || !es[0].isIntersecting) return; done = true; obs.disconnect();
+      var t0 = null;
+      function frame(t){ t0 = t0 || t; var p = (t - t0) / 1400; if (p >= 1) { input.value = 50; set(); return; }
+        input.value = 50 + Math.sin(p * Math.PI * 2) * 30; set(); requestAnimationFrame(frame); }
+      requestAnimationFrame(frame);
+    }, {threshold: .6}).observe(box);
+  });
+})();
+</script>
+</body>
+</html>

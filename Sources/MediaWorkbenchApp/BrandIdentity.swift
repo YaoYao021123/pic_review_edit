@@ -11,7 +11,7 @@ struct BrandMark: View {
                 ApertureBlade().fill(index == 0 ? accent : foreground)
                     .rotationEffect(.degrees(Double(index) * 90))
             }
-        }.aspectRatio(1, contentMode: .fit).accessibilityLabel("光集标志")
+        }.aspectRatio(1, contentMode: .fit).accessibilityLabel("Lucet 光集标志")
     }
     private var foreground: Color {
         scheme == .dark ? Color(red: 242/255, green: 240/255, blue: 232/255) : Color(red: 51/255, green: 54/255, blue: 46/255)

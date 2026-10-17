@@ -1,0 +1,4 @@
+/* English Info.plist strings for Lucet 光集. */
+"CFBundleDisplayName" = "Lucet 光集";
+"NSPhotoLibraryAddUsageDescription" = "Lucet saves the photos, videos and Live Photos you export into Photos. It never reads or changes the photos already there.";
+"NSPhotoLibraryUsageDescription" = "Lucet saves the photos you export into Photos, and, only when you choose Import from Photos, reads the ones you pick so you can edit them. It never changes or deletes what is already in Photos.";

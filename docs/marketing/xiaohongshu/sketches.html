@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光集 · 手绘白板（1080×1080）</title>
+<!--
+  Hand-drawn whiteboard sketches in the style of Excalidraw (the same rough.js line library, a hand-lettered font).
+  Each board is drawn stroke by stroke; every element starts when its "anchor" word is spoken, so the drawing follows
+  what you say. scripts/audio/build-talking-video.py renders these and lays them over your video.
+
+    sketches.html?board=problem|flow|story           the finished board
+    ...&play=1                                        replay it in a loop (anchors spaced 1.6 s apart)
+    ...&t=2.3&cues=mimo:0.2,lightroom:4.1&render=1    one frame (what the render script asks for)
+
+  To change a drawing or a word, edit the board function below. rough.js is MIT licensed (vendor/rough.js).
+-->
+<script src="vendor/rough.js"></script>
+<style>
+html,body{margin:0;background:#fbf8ef}
+body.render{overflow:hidden}
+svg{display:block}
+text{font-family:"Hannotate SC","HanziPen SC","PingFang SC",sans-serif}
+</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1080" viewBox="0 0 1080 1080"><rect width="1080" height="1080" fill="#fbf8ef"/><g id="board"></g></svg>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const Q = new URLSearchParams(location.search);
+const svg = document.getElementById("s"), root = document.getElementById("board"), rc = rough.svg(svg);
+const INK = "#1e1e1e", GREY = "#868e96", RED = "#c92a2a", GREEN = "#2b8a3e", ORANGE = "#e8590c", SOFT = "#fff3bf", MINT = "#d3f9d8";
+const PICS = JSON.parse(Q.get("pics") || "{}");   // slot -> {src, w, h}: real pictures that replace a hand-drawn icon (see scripts/lib/sketch_pics.py)
+let seed = 1; const items = [], EX = [];          // EX: the same drawing as plain shapes, for the .excalidraw export
+
+/* ---- drawing helpers: each returns nothing, and registers an item that starts at an anchor word ---- */
+function opt(o = {}) { return { roughness: 1.5, bowing: 1.3, strokeWidth: 3.4, stroke: INK, seed: seed++, ...o }; }
+function put(g, at, delay = 0, dur = 0.7, kind = "shape") { root.appendChild(g); items.push({ g, at, delay, dur, kind }); }
+const rect = (x, y, w, h, at, d, o) => { EX.push({ t: "rectangle", x, y, w, h, o }); put(rc.rectangle(x, y, w, h, opt(o)), at, d, 0.8); };
+const circle = (x, y, r, at, d, o) => { EX.push({ t: "ellipse", x: x - r, y: y - r, w: r * 2, h: r * 2, o }); put(rc.circle(x, y, r * 2, opt(o)), at, d, 0.7); };
+const line = (x1, y1, x2, y2, at, d, o) => { EX.push({ t: "line", x: x1, y: y1, pts: [[0, 0], [x2 - x1, y2 - y1]], o }); put(rc.line(x1, y1, x2, y2, opt(o)), at, d, 0.5); };
+function arrow(x1, y1, x2, y2, at, d, o = {}) {
+  const a = Math.atan2(y2 - y1, x2 - x1), h = 26;
+  EX.push({ t: "arrow", x: x1, y: y1, pts: [[0, 0], [x2 - x1, y2 - y1]], o });
+  const g = document.createElementNS(NS, "g");
+  g.appendChild(rc.line(x1, y1, x2, y2, opt(o)));
+  for (const s of [-0.5, 0.5]) g.appendChild(rc.line(x2, y2, x2 - h * Math.cos(a + s), y2 - h * Math.sin(a + s), opt(o)));
+  put(g, at, d, 0.7);
+}
+function cross(x, y, r, at, d, color = RED) { const g = document.createElementNS(NS, "g");
+  EX.push({ t: "line", x: x - r, y: y - r, pts: [[0, 0], [2 * r, 2 * r]], o: { stroke: color, strokeWidth: 6 } });
+  EX.push({ t: "line", x: x + r, y: y - r, pts: [[0, 0], [-2 * r, 2 * r]], o: { stroke: color, strokeWidth: 6 } });
+  g.appendChild(rc.line(x - r, y - r, x + r, y + r, opt({ stroke: color, strokeWidth: 6 })));
+  g.appendChild(rc.line(x + r, y - r, x - r, y + r, opt({ stroke: color, strokeWidth: 6 }))); put(g, at, d, 0.5); }
+function check(x, y, s, at, d, color = GREEN) {
+  EX.push({ t: "line", x: x - s, y, pts: [[0, 0], [s * 0.7, s * 0.7], [s * 2, -s * 0.8]], o: { stroke: color, strokeWidth: 7 } });
+  put(rc.linearPath([[x - s, y], [x - s * 0.3, y + s * 0.7], [x + s, y - s * 0.8]], opt({ stroke: color, strokeWidth: 7 })), at, d, 0.5); }
+function text(str, x, y, at, d, { size = 54, color = INK, anchor = "middle" } = {}) {
+  const t = document.createElementNS(NS, "text");
+  Object.entries({ x, y, "text-anchor": anchor, "font-size": size, fill: color }).forEach(([k, v]) => t.setAttribute(k, v));
+  EX.push({ t: "text", str, x, y, size, color, anchor }); t.textContent = str; put(t, at, d, 0.5, "text");
+}
+/* A real picture in a slot, fitted inside the box (cx, top, maxW, maxH) and framed like the rest. Returns false when the slot is empty. */
+function pic(slot, cx, top, maxW, maxH, at, d) {
+  const p = PICS[slot]; if (!p) return false;
+  const k = Math.min(maxW / p.w, maxH / p.h), w = Math.round(p.w * k), h = Math.round(p.h * k), x = Math.round(cx - w / 2);
+  const im = document.createElementNS(NS, "image");
+  Object.entries({ href: p.src, x, y: top, width: w, height: h, preserveAspectRatio: "none" }).forEach(([a, v]) => im.setAttribute(a, v));
+  EX.push({ t: "image", slot, x, y: top, w, h }); put(im, at, d, 0.6, "pic");
+  rect(x - 5, top - 5, w + 10, h + 10, at, d + 0.1, { strokeWidth: 2.6 });
+  return true;
+}
+const curve = (pts, at, d, o) => { EX.push({ t: "line", x: pts[0][0], y: pts[0][1], pts: pts.map(p => [p[0] - pts[0][0], p[1] - pts[0][1]]), curved: true, o }); put(rc.curve(pts, opt(o)), at, d, 0.8); };
+function bubble(x, y, w, h, str, at, d, { size = 44, color = INK, fill } = {}) {
+  rect(x, y, w, h, at, d, { strokeWidth: 3, fill, fillStyle: "solid" }); text(str, x + w / 2, y + h / 2 + size * 0.35, at, d + 0.3, { size, color });
+}
+function cloud(cx, cy, at, d) {
+  const k = [[-90, 25], [-105, -5], [-65, -35], [-35, -70], [15, -75], [55, -48], [95, -42], [122, -5], [102, 26], [-90, 25]];
+  curve(k.map(([x, y]) => [cx + x, cy + y]), at, d, { strokeWidth: 3.4 });
+}
+function hist(x, y, w, h, at, d, lit = false) {
+  if (lit) rect(x + w * 0.62, y, w * 0.34, h, at, d, { fill: "#ffd8a8", fillStyle: "solid", stroke: ORANGE, strokeWidth: 2 });
+  line(x, y + h, x + w, y + h, at, d, { strokeWidth: 3 });
+  curve([[x, y + h], [x + w * 0.12, y + h * 0.75], [x + w * 0.28, y + h * 0.25], [x + w * 0.42, y + h * 0.4], [x + w * 0.58, y + h * 0.15], [x + w * 0.78, y + h * 0.55], [x + w, y + h]], at, d + 0.2, { strokeWidth: 3.6 });
+}
+function phone(x, y, w, h, at, d, fill) {
+  rect(x, y, w, h, at, d, { fill, fillStyle: "solid" }); rect(x + 14, y + 22, w - 28, h - 70, at, d + 0.15, { strokeWidth: 2.4 });
+  circle(x + w / 2, y + h - 24, 9, at, d + 0.3, { strokeWidth: 2.4 });
+}
+function laptop(x, y, w, h, at, d) {
+  rect(x, y, w, h, at, d); rect(x + 14, y + 14, w - 28, h - 28, at, d + 0.15, { strokeWidth: 2.4 });
+  line(x - 40, y + h + 22, x + w + 40, y + h + 22, at, d + 0.3); line(x - 40, y + h + 22, x - 10, y + h, at, d + 0.35); line(x + w + 40, y + h + 22, x + w + 10, y + h, at, d + 0.35);
+}
+function person(x, y, at, d) {
+  circle(x, y, 40, at, d); line(x, y + 40, x, y + 200, at, d + 0.2); line(x, y + 85, x - 62, y + 140, at, d + 0.3);
+  line(x, y + 85, x + 70, y + 125, at, d + 0.35); line(x, y + 200, x - 55, y + 292, at, d + 0.5); line(x, y + 200, x + 58, y + 292, at, d + 0.55);
+  line(x - 16, y - 6, x - 16, y - 2, at, d + 0.6, { strokeWidth: 5 }); line(x + 16, y - 6, x + 16, y - 2, at, d + 0.6, { strokeWidth: 5 });
+  EX.push({ t: "line", x: x - 14, y: y + 18, pts: [[0, 0], [7, 6], [14, 8], [21, 6], [28, 0]], o: { strokeWidth: 3 } });
+  put(rc.arc(x, y + 10, 34, 24, 0.25 * Math.PI, 0.75 * Math.PI, false, opt({ strokeWidth: 3 })), at, d + 0.65, 0.3);
+}
+
+/* ---- the boards. Anchors are the words that trigger them (the patterns live in scripts/lib/sketch_pics.py, BOARDS) ---- */
+const BOARDS = {
+  /* 1 · DJI Mimo is phone-only */
+  phone() {                          // anchors: mimo, back, small
+    phone(140, 130, 200, 340, "mimo", 0, MINT);
+    text("DJI Mimo", 240, 535, "mimo", 0.4, { size: 56 });
+    check(420, 250, 34, "mimo", 0.9);
+    text("只有手机版", 240, 600, "mimo", 1.2, { size: 50, color: ORANGE });
+    laptop(640, 170, 330, 220, "mimo", 1.8);
+    text("?", 805, 330, "mimo", 2.3, { size: 130, color: GREY });
+    text("Mac", 805, 500, "mimo", 2.0, { size: 56 });
+    arrow(380, 330, 600, 330, "mimo", 1.7, { stroke: GREY, strokeLineDash: [10, 10] });
+    cross(490, 330, 26, "mimo", 2.4);
+    text("素材", 250, 740, "back", 0, { size: 52 });
+    arrow(330, 725, 620, 725, "back", 0.3, { stroke: ORANGE });
+    text("传回手机", 790, 740, "back", 0.7, { size: 52, color: ORANGE });
+    phone(450, 800, 130, 220, "small", 0, SOFT);
+    line(475, 880, 555, 880, "small", 0.4, { strokeWidth: 2.4, stroke: GREY }); circle(505, 880, 8, "small", 0.5, { fill: INK, fillStyle: "solid" });
+    line(475, 920, 555, 920, "small", 0.6, { strokeWidth: 2.4, stroke: GREY }); circle(535, 920, 8, "small", 0.7, { fill: INK, fillStyle: "solid" });
+    text("小屏幕上，一点一点地抠", 830, 930, "small", 0.9, { size: 40, color: GREY });
+  },
+  /* 2 · pro tools: dozens of sliders */
+  sliders() {                        // anchors: pro, many, names, lost
+    text("Lightroom · Photoshop", 540, 140, "pro", 0, { size: 62 });
+    text("当然什么都能做", 540, 215, "pro", 0.6, { size: 46, color: GREY });
+    check(900, 190, 30, "pro", 1.0);
+    ["曝光", "高光", "阴影", "白色", "黑色", "去朦胧"].forEach((n, i) => {
+      const y = 340 + i * 78, k = [380, 700, 520, 830, 450, 640][i];
+      line(270, y, 1000, y, "many", i * 0.12, { strokeWidth: 2.6, stroke: GREY });
+      circle(k, y, 14, "many", 0.1 + i * 0.12, { fill: INK, fillStyle: "solid" });
+      text(n, 60, y + 14, "names", i * 0.28, { size: 40, color: GREY, anchor: "start" });
+    });
+    text("……几十个", 640, 850, "many", 1.0, { size: 44, color: GREY });
+    text("先动哪一个？", 380, 960, "lost", 0, { size: 62, color: ORANGE });
+    text("变好了？变坏了？", 700, 1040, "lost", 0.9, { size: 46, color: GREY });
+    text("?", 880, 940, "lost", 0.5, { size: 120, color: ORANGE });
+  },
+  /* 3 · the idea */
+  idea() {                           // anchors: simple, teach
+    laptop(360, 150, 360, 240, "simple", 0);
+    [[450, 270], [540, 270], [630, 270]].forEach(([x, y], i) => circle(x, y, 28, "simple", 0.6 + i * 0.2, { fill: i === 1 ? ORANGE : SOFT, fillStyle: "solid", stroke: i === 1 ? ORANGE : INK }));
+    text("在 Mac 上", 540, 490, "simple", 0.8, { size: 56 });
+    text("简单得像手机 App", 540, 570, "simple", 1.3, { size: 62, color: ORANGE });
+    phone(840, 170, 130, 230, "simple", 1.8, MINT);
+    person(180, 640, "teach", 0);
+    bubble(330, 650, 600, 160, "想学的时候，有人在旁边", "teach", 0.7, { size: 48, fill: SOFT });
+    text("把道理讲给你听", 630, 890, "teach", 1.6, { size: 60, color: ORANGE });
+  },
+  /* 4 · prototype → find the problems */
+  origin() {                         // anchors: chatgpt, runs, claude, hunt
+    rect(80, 130, 400, 170, "chatgpt", 0);
+    text("ChatGPT", 280, 195, "chatgpt", 0.3, { size: 60 });
+    text("最早的原型", 280, 262, "chatgpt", 0.7, { size: 42, color: GREY });
+    text("能跑，但又慢、又乱", 280, 390, "runs", 0, { size: 46, color: GREY });
+    curve([[110, 440], [160, 410], [210, 450], [260, 415], [310, 455], [360, 420], [410, 455]], "runs", 0.5, { stroke: GREY, strokeWidth: 3 });
+    arrow(495, 215, 595, 215, "claude", 0);
+    rect(610, 130, 390, 170, "claude", 0.2);
+    text("Claude Code", 805, 195, "claude", 0.5, { size: 58 });
+    text("交给它", 805, 262, "claude", 0.9, { size: 42, color: GREY });
+    text("第一件事：不是加功能", 540, 580, "hunt", 0, { size: 58 });
+    line(540 + 90, 565, 540 + 290, 558, "hunt", 0.8, { stroke: RED, strokeWidth: 6 });
+    text("而是挑毛病", 480, 700, "hunt", 1.3, { size: 84, color: ORANGE });
+    circle(800, 690, 52, "hunt", 1.7, { strokeWidth: 5 }); line(838, 728, 905, 800, "hunt", 1.9, { strokeWidth: 8 });
+    text("每一个，都在我的 Mac 上实测", 540, 950, "hunt", 2.4, { size: 48, color: GREY });
+  },
+  /* 5 · measured fixes */
+  audit() {                          // anchors: files, slow, fast, lut, works
+    rect(90, 150, 220, 150, "files", 0, { fill: SOFT, fillStyle: "solid" }); line(90, 150, 170, 150, "files", 0.1, { strokeWidth: 3 });
+    text("2000 个文件", 200, 355, "files", 0.5, { size: 48 });
+    text("加进素材库", 200, 410, "files", 0.9, { size: 38, color: GREY });
+    text("原来：近 7 秒，界面卡住", 640, 215, "slow", 0, { size: 46, color: RED });
+    cross(1000, 200, 22, "slow", 0.8);
+    text("现在：不到 0.01 秒", 640, 330, "fast", 0, { size: 52, color: GREEN });
+    check(1000, 312, 26, "fast", 0.7);
+    line(70, 500, 1010, 495, "lut", 0, { strokeWidth: 3, stroke: GREY });
+    rect(90, 560, 260, 150, "lut", 0.3, { fill: MINT, fillStyle: "solid" });
+    text("LUT", 220, 660, "lut", 0.6, { size: 72 });
+    text("DJI Pocket 3 官方", 220, 765, "lut", 0.9, { size: 36, color: GREY });
+    text("原来：导入失败", 700, 600, "lut", 1.2, { size: 52, color: RED });
+    text("（标题是另一种编码）", 700, 665, "lut", 1.6, { size: 38, color: GREY });
+    text("现在：正常使用", 700, 790, "works", 0, { size: 56, color: GREEN });
+    check(990, 770, 26, "works", 0.7);
+    text("每个毛病，都有数字，也有测试", 540, 990, "works", 1.5, { size: 46, color: ORANGE });
+  },
+  /* 6 · one plain sentence at a time */
+  sentences() {                      // anchors: loop, blue, loose, info, boxes, rounds
+    person(110, 150, "loop", 0);
+    text("一句普通的话", 165, 570, "loop", 0.8, { size: 40, color: ORANGE });
+    [["blue", "这个蓝色太亮了", 150], ["loose", "右边太松了，不够紧凑", 270], ["info", "信息不够", 390], ["boxes", "方框太多了", 510]].forEach(([at, s, y]) => {
+      rect(330, y, 660, 96, at, 0, { strokeWidth: 3 });
+      text(s, 660, y + 66, at, 0.4, { size: 50 });
+    });
+    text("我说", 220, 760, "rounds", 0, { size: 52 });
+    arrow(290, 745, 400, 745, "rounds", 0.3);
+    text("AI 改", 500, 760, "rounds", 0.5, { size: 52, color: ORANGE });
+    arrow(580, 745, 690, 745, "rounds", 0.8);
+    text("我再看", 790, 760, "rounds", 1.0, { size: 52 });
+    curve([[790, 800], [800, 880], [540, 900], [260, 880], [235, 800]], "rounds", 1.4, { stroke: ORANGE, strokeWidth: 4 });
+    text("一轮一轮", 540, 985, "rounds", 1.9, { size: 62, color: ORANGE });
+  },
+  /* 7 · the AI gets it wrong */
+  mistake() {                        // anchors: latte, wrong, fix, real, test
+    rect(90, 170, 420, 300, "latte", 0, { fill: "#ffffff", fillStyle: "solid" });
+    circle(300, 330, 78, "latte", 0.4, { fill: SOFT, fillStyle: "solid" }); circle(300, 330, 48, "latte", 0.7, { strokeWidth: 2.4 });
+    text("拿铁 · 白桌子", 300, 530, "latte", 0.9, { size: 46 });
+    rect(590, 170, 400, 150, "wrong", 0, { stroke: RED });
+    text("“整体偏亮”", 790, 262, "wrong", 0.4, { size: 56, color: RED });
+    text("建议曝光 −1.5", 790, 400, "fix", 0, { size: 52, color: RED });
+    cross(790, 470, 28, "fix", 0.6);
+    text("白桌子，本来就该亮", 540, 650, "real", 0, { size: 72, color: ORANGE });
+    line(250, 665, 830, 658, "real", 0.8, { stroke: ORANGE, strokeWidth: 4 });
+    [["发现不对", 70], ["修好", 410], ["加上测试", 750]].forEach(([s, x], i) => {
+      rect(x, 790, 260, 110, "test", i * 0.7, { strokeWidth: 3, fill: i === 2 ? MINT : undefined, fillStyle: "solid" });
+      text(s, x + 130, 862, "test", i * 0.7 + 0.3, { size: 48 });
+      if (i < 2) arrow(x + 268, 845, x + 330, 845, "test", i * 0.7 + 0.5, { strokeWidth: 3 });
+    });
+    text("它就不会再犯", 540, 1000, "test", 2.4, { size: 50, color: GREY });
+  },
+  /* 8 · 自动 */
+  auto() {                           // anchors: auto, read, restraint, undo, six
+    text("点一下「自动」", 540, 100, "auto", 0, { size: 70 });
+    if (!pic("auto", 540, 135, 800, 400, "read", 0)) { rect(140, 150, 800, 380, "read", 0, { strokeWidth: 3 }); text("先读这张照片", 540, 360, "read", 0.4, { size: 60, color: GREY }); }
+    text("先读这张照片，再调好明暗和颜色", 540, 610, "read", 0.9, { size: 44, color: GREY });
+    ["白底照片：保持明亮", "夜景：还是夜景", "日落：暖色留下"].forEach((s, i) => text(s, 540, 680 + i * 56, "restraint", i * 0.6, { size: 44, color: i === 0 ? INK : INK }));
+    text("很克制", 140, 700, "restraint", 0, { size: 52, color: ORANGE });
+    text("不满意，撤销一下就回去", 540, 880, "undo", 0, { size: 48, color: ORANGE });
+    arrow(950, 860, 880, 860, "undo", 0.6, { stroke: ORANGE });
+    ["亮度", "对比度", "亮部", "暗部", "冷暖", "鲜艳度"].forEach((s, i) => {
+      rect(50 + i * 165, 940, 150, 80, "six", i * 0.25, { strokeWidth: 2.6 });
+      text(s, 125 + i * 165, 992, "six", i * 0.25 + 0.2, { size: 34 });
+    });
+  },
+  /* 9 · presets and crop */
+  presets() {                        // anchors: presets, thumbs, crop, drag
+    text("预设", 130, 110, "presets", 0, { size: 62, color: ORANGE });
+    if (!pic("presets", 540, 140, 820, 320, "presets", 0.3)) rect(240, 150, 600, 300, "presets", 0.3, { strokeWidth: 3 });
+    text("用你这张照片做成的小图，喜欢哪个点哪个", 540, 525, "thumbs", 0, { size: 44 });
+    text("裁剪", 130, 620, "crop", 0, { size: 62, color: ORANGE });
+    if (!pic("crop", 360, 660, 440, 300, "crop", 0.3)) rect(150, 670, 500, 290, "crop", 0.3, { strokeWidth: 3 });
+    text("直接在照片上拖", 830, 760, "drag", 0, { size: 48 });
+    arrow(800, 790, 700, 850, "drag", 0.5, { stroke: ORANGE });
+    text("不用去找菜单", 830, 920, "drag", 0.9, { size: 40, color: GREY });
+  },
+  /* 10 · save to Photos */
+  save() {                           // anchors: save, icloud, iphone, live
+    text("调完，直接存进「照片」", 540, 100, "save", 0, { size: 62 });
+    if (!pic("save", 540, 140, 700, 360, "save", 0.4)) rect(190, 150, 700, 340, "save", 0.4, { strokeWidth: 3 });
+    laptop(110, 640, 200, 130, "icloud", 0);
+    arrow(360, 700, 470, 700, "icloud", 0.5);
+    cloud(600, 700, "icloud", 0.9);
+    text("iCloud", 600, 725, "icloud", 1.5, { size: 40 });
+    arrow(730, 700, 840, 700, "icloud", 1.7);
+    phone(870, 590, 120, 210, "iphone", 0, MINT);
+    text("你的 iPhone 上马上就能看到", 540, 880, "iphone", 0.8, { size: 46 });
+    circle(160, 990, 20, "live", 0, { strokeWidth: 3 }); circle(160, 990, 8, "live", 0.2, { fill: ORANGE, fillStyle: "solid", stroke: ORANGE });
+    text("视频，也能做成实况照片", 600, 1005, "live", 0.5, { size: 50, color: ORANGE });
+  },
+  /* 11a · where the teaching idea comes from */
+  inspire() {                        // anchors: filter, xiaoyang, few, inapp
+    text("一键滤镜：照片好看了", 540, 140, "filter", 0, { size: 62 });
+    text("下一次，还是不知道为什么", 540, 225, "filter", 0.7, { size: 46, color: GREY });
+    text("?", 930, 215, "filter", 1.3, { size: 120, color: ORANGE });
+    phone(110, 330, 190, 320, "xiaoyang", 0, SOFT);
+    line(160, 440, 160, 540, "xiaoyang", 0.5, { strokeWidth: 3 }); line(160, 440, 250, 490, "xiaoyang", 0.6, { strokeWidth: 3 }); line(250, 490, 160, 540, "xiaoyang", 0.7, { strokeWidth: 3 });
+    text("张小样（抖音）", 205, 700, "xiaoyang", 0.9, { size: 40 });
+    text("用动画讲直方图、曲线、光圈", 640, 450, "xiaoyang", 1.3, { size: 46 });
+    text("比任何说明书都清楚", 640, 530, "xiaoyang", 1.9, { size: 50, color: ORANGE });
+    [0, 1, 2].forEach(i => rect(120 + i * 70, 800, 56, 90, "few", i * 0.3, { strokeWidth: 2.6, fill: SOFT, fillStyle: "solid" }));
+    text("可惜只有几条视频，讲不完基础", 660, 855, "few", 0.5, { size: 44, color: GREY });
+    bubble(130, 930, 820, 110, "所以，把这种讲法放进 App 里", "inapp", 0, { size: 48, fill: MINT });
+  },
+  /* 11 · learn while editing */
+  learn() {                          // anchors: pixels, hist, aperture, highlight, thirteen
+    text("边调边学", 540, 110, "pixels", 0, { size: 62, color: ORANGE });
+    const greys = ["#e9ecef", "#ced4da", "#adb5bd", "#868e96", "#495057"];
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++)
+      rect(80 + c * 54, 190 + r * 54, 48, 48, "pixels", (r * 5 + c) * 0.04, { strokeWidth: 1.8, fill: greys[(r * 2 + c * 3) % 5], fillStyle: "solid" });
+    text("像素", 215, 460, "pixels", 0.9, { size: 42 });
+    arrow(380, 300, 500, 300, "hist", 0);
+    hist(540, 190, 440, 220, "hist", 0.3);
+    text("按亮度堆成小山 = 直方图", 760, 460, "hist", 1.0, { size: 40 });
+    circle(220, 640, 80, "aperture", 0, { strokeWidth: 4 });
+    for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; line(220 + 80 * Math.cos(a), 640 + 80 * Math.sin(a), 220 + 36 * Math.cos(a + 0.9), 640 + 36 * Math.sin(a + 0.9), "aperture", 0.3 + i * 0.08, { strokeWidth: 3 }); }
+    [[360, 590], [410, 650], [370, 700]].forEach(([x, y], i) => circle(x, y, 22, "aperture", 0.9 + i * 0.15, { strokeWidth: 2.6, strokeLineDash: [8, 8], stroke: GREY }));
+    text("拖光圈，背景变虚", 260, 800, "aperture", 1.4, { size: 42 });
+    hist(600, 560, 380, 200, "highlight", 0, true);
+    text("拖「亮部」，亮出改了哪一段", 790, 820, "highlight", 0.9, { size: 40 });
+    text("十三课，还在一课一课地加", 540, 990, "thirteen", 0, { size: 60, color: ORANGE });
+  },
+  /* 12 · the name */
+  name() {                           // anchors: name, lat, gather, photo
+    text("Lucet 光集", 540, 250, "name", 0, { size: 150 });
+    circle(540, 420, 54, "lat", 0);
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; line(540 + 70 * Math.cos(a), 420 + 70 * Math.sin(a), 540 + 105 * Math.cos(a), 420 + 105 * Math.sin(a), "lat", 0.3 + i * 0.05, { strokeWidth: 3.6, stroke: ORANGE }); }
+    circle(540, 420, 14, "lat", 0.8, { fill: ORANGE, fillStyle: "solid", stroke: ORANGE });
+    text("Lūcet：拉丁语，“它在发光”", 540, 600, "lat", 1.0, { size: 52 });
+    [[120, 700], [300, 690], [780, 690], [960, 700]].forEach(([x, y], i) => arrow(x, y, 540 + (x < 540 ? -50 : 50), 770, "gather", i * 0.15, { stroke: ORANGE, strokeWidth: 3 }));
+    circle(540, 790, 16, "gather", 0.8, { fill: ORANGE, fillStyle: "solid", stroke: ORANGE });
+    text("光集：把光收集起来", 540, 870, "gather", 1.0, { size: 52 });
+    text("一张照片，本来就是被留住的光", 540, 975, "photo", 0, { size: 54, color: GREY });
+    text("让每一个瞬间，自有光彩。", 540, 1050, "photo", 1.2, { size: 46, color: ORANGE });
+  },
+  /* 13 · honest limits */
+  honest() {                         // anchors: early, apple, zh, notar, safe, none, upload
+    text("说实话，现在：", 80, 110, "early", 0, { size: 60, color: ORANGE, anchor: "start" });
+    [["early", "还是早期版本"], ["apple", "只能在 Apple 芯片的 Mac 上用（macOS 15+）"], ["zh", "界面目前只有中文"], ["notar", "还没有苹果公证，第一次要手动放行"]].forEach(([at, s], i) => {
+      circle(100, 230 + i * 100, 14, at, 0, { fill: GREY, fillStyle: "solid", stroke: GREY });
+      text(s, 140, 245 + i * 100, at, 0.3, { size: 44, anchor: "start" });
+    });
+    line(70, 650, 1010, 645, "safe", 0, { strokeWidth: 3, stroke: GREY });
+    text("但是它：", 80, 740, "safe", 0.2, { size: 60, color: GREEN, anchor: "start" });
+    [["safe", "不改动你的原片"], ["none", "没有账号"], ["upload", "不上传任何照片"]].forEach(([at, s], i) => {
+      check(110, 830 + i * 90, 24, at, 0);
+      text(s, 160, 845 + i * 90, at, 0.3, { size: 50, anchor: "start" });
+    });
+  },
+  /* 14 · invitation */
+  invite() {                         // anchors: try, tell, ai, tag
+    for (let i = 0; i < 3; i++) rect(80 + i * 30, 150 + i * 22, 190, 140, "try", i * 0.3, { fill: i === 2 ? SOFT : "#ffffff", fillStyle: "solid", strokeWidth: 3 });
+    arrow(320, 240, 470, 240, "try", 1.0);
+    rect(490, 150, 330, 170, "try", 1.3, { fill: SOFT, fillStyle: "solid" });
+    text("Lucet 光集", 655, 250, "try", 1.7, { size: 56 });
+    text("一堆舍不得删的照片？来试试", 540, 420, "try", 2.0, { size: 48 });
+    person(170, 520, "tell", 0);
+    bubble(330, 540, 620, 130, "哪里不顺手，告诉我", "tell", 0.6, { size: 52, fill: SOFT });
+    laptop(130, 840, 260, 130, "ai", 0);
+    laptop(680, 840, 260, 130, "ai", 0.5);
+    arrow(430, 900, 640, 900, "ai", 0.9, { stroke: ORANGE }); arrow(640, 930, 430, 930, "ai", 1.2, { stroke: ORANGE });
+    text("你也在用 AI 做东西？", 540, 800, "ai", 1.6, { size: 48 });
+    text("让每一个瞬间，自有光彩。", 540, 1066, "tag", 0, { size: 46, color: ORANGE });
+  }
+};
+
+/* ---- time: draw each item as its anchor word is reached ---- */
+const clamp = (x) => Math.min(1, Math.max(0, x)), ease = (x) => x * x * (3 - 2 * x);
+function apply(it, t, cues) {
+  const start = (cues[it.at] ?? 0) + it.delay, p = clamp((t - start) / it.dur);
+  if (it.kind !== "shape") { it.g.style.opacity = ease(p); it.g.setAttribute("transform", `translate(0 ${(1 - ease(p)) * 8})`); return; }
+  for (const path of it.g.querySelectorAll("path")) {
+    const fill = path.getAttribute("fill");
+    if (fill && fill !== "none") { path.style.opacity = ease(p); continue; }
+    path.setAttribute("pathLength", "1");
+    const dashed = path.getAttribute("stroke-dasharray");
+    if (dashed) { path.style.opacity = ease(p); continue; }          // dashed lines fade in instead of drawing
+    path.style.strokeDasharray = "1 1"; path.style.strokeDashoffset = 1 - ease(p); path.style.opacity = p > 0 ? 1 : 0;
+  }
+}
+function seek(t, cues) { items.forEach(it => apply(it, t, cues)); }
+
+const name = Q.get("board") || "problem";
+BOARDS[name]();
+const anchors = [...new Set(items.map(i => i.at))];
+const cues = {};
+(Q.get("cues") || "").split(",").filter(Boolean).forEach(c => { const [k, v] = c.split(":"); cues[k] = parseFloat(v); });
+anchors.forEach((a, i) => { if (!(a in cues)) cues[a] = i * 1.6; });         // missing anchors are spaced out so a board is never half empty
+const last = Math.max(...anchors.map(a => cues[a])) + 4;
+window.BOARD = { name, anchors, cues };
+/* ---- export: sketches.html?board=flow&export=1 writes the board as an Excalidraw file (see scripts/export-excalidraw.py) ---- */
+function toExcalidraw() {
+  const width = (w) => w >= 5 ? 4 : w >= 3 ? 2 : 1;
+  const elements = EX.map((e, i) => {
+    const o = e.o || {}, base = {
+      id: `${name}-${i}`, angle: 0, strokeColor: e.color ?? o.stroke ?? INK, backgroundColor: o.fill ?? "transparent", fillStyle: "solid",
+      strokeWidth: width(o.strokeWidth ?? 3.4), strokeStyle: o.strokeLineDash ? "dashed" : "solid", roughness: 1, opacity: 100, groupIds: [],
+      frameId: null, roundness: null, seed: 1000 + i * 7, version: 1, versionNonce: i + 1, isDeleted: false, boundElements: null, updated: 1,
+      link: null, locked: false };
+    if (e.t === "text") {                                    // an SVG text's y is its baseline; Excalidraw wants the top-left corner
+      const w = [...e.str].reduce((n, c) => n + (/[\u2e80-\u9fff\uff00-\uffef]/.test(c) ? 1 : 0.55), 0) * e.size, h = Math.round(e.size * 1.25);
+      return { ...base, type: "text", x: e.anchor === "middle" ? e.x - w / 2 : e.x, y: e.y - e.size, width: w, height: h, text: e.str, originalText: e.str,
+        fontSize: e.size, fontFamily: 5, textAlign: e.anchor === "middle" ? "center" : "left", verticalAlign: "top", containerId: null,
+        autoResize: true, lineHeight: 1.25 };
+    }
+    if (e.t === "image") return { ...base, type: "image", x: e.x, y: e.y, width: e.w, height: e.h, fileId: `pic-${e.slot}`, status: "saved", scale: [1, 1], crop: null };
+    if (e.t === "line" || e.t === "arrow") {
+      const xs = e.pts.map(p => p[0]), ys = e.pts.map(p => p[1]);
+      return { ...base, type: e.t, x: e.x, y: e.y, width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys),
+        points: e.pts, lastCommittedPoint: null, startBinding: null, endBinding: null, startArrowhead: null,
+        endArrowhead: e.t === "arrow" ? "arrow" : null, ...(e.t === "arrow" ? { elbowed: false } : {}), ...(e.curved ? { roundness: { type: 2 } } : {}) };
+    }
+    return { ...base, type: e.t, x: e.x, y: e.y, width: e.w, height: e.h };
+  });
+  return { type: "excalidraw", version: 2, source: "https://excalidraw.com", elements, appState: { viewBackgroundColor: "#fbf8ef", gridSize: null }, files: {}, anchors: [...new Set(items.map(i => i.at))] };
+}
+if (Q.has("export")) { const pre = document.createElement("pre"); pre.id = "excalidraw"; pre.textContent = JSON.stringify(toExcalidraw()); document.body.appendChild(pre); }
+if (Q.has("render")) document.body.classList.add("render");
+if (Q.has("play") && !Q.has("render")) {
+  let t0 = null; const loop = (ts) => { t0 = t0 ?? ts; seek(((ts - t0) / 1000) % (last + 1), cues); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
+} else seek(Q.has("t") ? parseFloat(Q.get("t")) : 99, cues);
+</script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucet 光集 · 让每一个瞬间，自有光彩</title>
+<meta name="description" content="Lucet 光集是一款 Mac 调色工具：一键自动、六个滑块、预设一眼挑，DJI 和 iPhone 拍的照片、视频、Live Photo 都能调，调完直接存进「照片」。不用先学摄影。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d0d0e">
+<!-- Social previews (WeChat, Weibo, X, Slack, iMessage…) need absolute URLs. They assume the site lives at
+     https://yaoyao021123.github.io/lucet/ ; if it moves, update every URL in this block. -->
+<link rel="canonical" href="https://yaoyao021123.github.io/lucet/">
+<link rel="alternate" hreflang="zh-CN" href="https://yaoyao021123.github.io/lucet/">
+<link rel="alternate" hreflang="en" href="https://yaoyao021123.github.io/lucet/en/">
+<link rel="alternate" hreflang="x-default" href="https://yaoyao021123.github.io/lucet/en/">
+<script>
+// English for browsers not set to Chinese, unless the visitor picked a language with the switch in the menu.
+try {
+  var pick = localStorage.getItem('lucet.lang');
+  var chinese = (navigator.languages || [navigator.language]).some(function (l) { return /^zh/i.test(l); });
+  if (pick === 'en' || (!pick && !chinese)) location.replace('en/' + location.hash);
+} catch (e) {}
+</script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lucet 光集">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:url" content="https://yaoyao021123.github.io/lucet/">
+<meta property="og:title" content="Lucet 光集 · 让每一个瞬间，自有光彩">
+<meta property="og:description" content="一键自动、六个滑块、预设一眼挑，调完存进「照片」。给 DJI 和 iPhone 拍摄者的 Mac 调色工具，不用先学摄影。">
+<meta property="og:image" content="https://yaoyao021123.github.io/lucet/assets/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lucet 光集的图标：四片光圈叶片，旁边写着「Lucet 光集，让每一个瞬间，自有光彩。」">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lucet 光集 · 让每一个瞬间，自有光彩">
+<meta name="twitter:description" content="一键自动、六个滑块、预设一眼挑，调完存进「照片」。不用先学摄影。">
+<meta name="twitter:image" content="https://yaoyao021123.github.io/lucet/assets/og.jpg">
+<meta name="twitter:image:alt" content="Lucet 光集的图标和口号：让每一个瞬间，自有光彩。">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/app-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lucet 光集","alternateName":["Lucet","光集","Guangji"],
+ "applicationCategory":"PhotographyApplication","operatingSystem":"macOS 15 or later (Apple silicon)",
+ "inLanguage":["zh-CN","en"],"description":"Mac 上的照片、视频与 Live Photo 调色工具，面向没有摄影基础的用户。"}
+</script>
+<style>
+:root{
+  --bg:#0d0d0e; --text:#f2f0e8; --muted:#a8a59c; --faint:#77746c;
+  --line:rgba(255,255,255,.12); --radius:12px; --max:1080px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.7 var(--font);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+.wrap{width:min(var(--max),100% - 40px);margin:0 auto}
+section{padding:104px 0}
+h1,h2,h3,.lead{text-wrap:balance}
+h1,h2,h3{line-height:1.2;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(32px,6vw,64px);font-weight:700}
+h2{font-size:clamp(26px,4vw,40px);font-weight:650}
+h3{font-size:20px;font-weight:600}
+p{margin:0}
+.eyebrow{color:var(--muted);font-size:14px;letter-spacing:.08em;margin-bottom:14px}
+.lead{color:var(--muted);font-size:clamp(17px,2vw,21px);max-width:40em}
+.small{font-size:14px;color:var(--faint)}
+.center{text-align:center}
+.center .lead{margin:16px auto 0}
+
+/* The page stays flat: no filled cards. Structure comes from spacing and a few thin rules. */
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);background:rgba(13,13,14,.72);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;text-decoration:none;font-size:18px}
+.brand img{width:26px;height:26px}
+nav .links{display:flex;gap:22px;margin-left:auto;font-size:15px;color:var(--muted);align-items:center}
+nav .links a{text-decoration:none}
+nav .links a:hover{color:var(--text)}
+@media(max-width:720px){nav .links a:not(.cta){display:none}}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font:inherit;font-size:16px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--text);color:#1a1a18}
+.btn.primary:hover{background:#fff}
+.btn.glass{border-color:rgba(255,255,255,.3);color:var(--text)}
+.btn.glass:hover{border-color:rgba(255,255,255,.6)}
+.btn.small-btn{padding:7px 16px;font-size:14px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+/* screenshots: one soft edge, nothing wrapped around them */
+.window,.shot img,.compare{border-radius:var(--radius);overflow:hidden;box-shadow:0 0 0 1px var(--line),0 28px 60px -30px #000}
+.window img{width:100%}
+
+.hero{padding:76px 0 24px;text-align:center}
+.hero .lead{margin:22px auto 0}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+.hero .note{margin-top:16px}
+.hero .window{margin:60px auto 0;max-width:1040px}
+
+.story .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:start;margin-top:40px}
+.story blockquote{margin:0;font-size:clamp(20px,2.4vw,26px);line-height:1.6;font-weight:500}
+.story blockquote span{color:var(--muted)}
+.gap div{padding:20px 0;border-top:1px solid var(--line)}
+.gap div:last-child{border-bottom:1px solid var(--line)}
+.gap b{display:block;margin-bottom:2px;color:var(--muted)}
+.gap p{font-size:15px;color:var(--faint)}
+.gap .us b{color:var(--text)}
+.gap .us p{color:var(--muted)}
+@media(max-width:860px){.story .grid{grid-template-columns:1fr;gap:36px}}
+
+.feature{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center;padding:64px 0}
+.feature.reverse{grid-template-columns:1.1fr 1fr}
+.feature.reverse .text{order:2}
+.feature.stack{grid-template-columns:1fr;gap:40px}
+.feature.stack .text{max-width:42em}
+.feature .text p{color:var(--muted);margin-top:14px}
+.feature .text ul{margin:18px 0 0;padding:0;list-style:none;color:var(--muted);font-size:16px}
+.feature .text li{padding-left:20px;position:relative;margin-top:8px}
+.feature .text li::before{content:"";position:absolute;left:2px;top:.85em;width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.feature .kicker{font-size:14px;color:var(--faint);letter-spacing:.06em;margin-bottom:10px}
+.shot{display:flex;justify-content:center}
+.shot img{width:min(100%,430px)}
+@media(max-width:860px){.feature,.feature.reverse{grid-template-columns:1fr;gap:32px;padding:44px 0}.feature.reverse .text{order:0}}
+
+.compare{position:relative;aspect-ratio:1024/576;background:#000;user-select:none;touch-action:pan-y}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.compare .after{clip-path:inset(0 0 0 var(--pos,50%))}
+.compare .line{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:2px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.5);pointer-events:none}
+.compare .line::after{content:"";position:absolute;top:50%;left:50%;width:36px;height:36px;margin:-18px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid #fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.compare .tag{position:absolute;top:12px;padding:3px 12px;border-radius:999px;font-size:13px;background:rgba(0,0,0,.55)}
+.compare .tag.l{left:12px}.compare .tag.r{right:12px}
+.compare input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.compare:has(input:focus-visible){outline:2px solid var(--text);outline-offset:3px}
+.compare-note{display:flex;gap:14px;align-items:center;margin-top:12px}
+.compare-note img{width:96px;border-radius:6px;box-shadow:0 0 0 1px var(--line)}
+nav .links .lang{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+.pair{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:start}
+.pair .shot img{width:100%}
+@media(max-width:860px){.pair{grid-template-columns:1fr}}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:36px 44px;margin-top:64px}
+.card{border-top:1px solid var(--line);padding-top:18px}
+.card h3{font-size:18px}
+.card p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.65}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px;margin-top:48px;counter-reset:s}
+.step{counter-increment:s}
+.step::before{content:counter(s);display:block;font-size:44px;line-height:1;font-weight:300;color:var(--faint);margin-bottom:16px}
+.step p{color:var(--muted);margin-top:8px;font-size:15px}
+
+.fit{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:44px}
+.fit>div{border-top:1px solid var(--line);padding-top:22px}
+.fit ul{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:16px}
+.fit li{margin-top:6px}
+@media(max-width:720px){.fit{grid-template-columns:1fr;gap:36px}}
+
+.commits{margin:0;font:15px/2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);overflow:auto;white-space:pre}
+.commits i{font-style:normal;color:var(--faint);margin-right:16px}
+.faq{max-width:760px;margin:40px auto 0}
+details{border-bottom:1px solid var(--line);padding:6px 0}
+details:first-child{border-top:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600;padding:16px 28px 16px 0;list-style:none;position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:4px;top:12px;font-size:24px;color:var(--muted);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);padding:0 0 18px;font-size:16px}
+details ol{color:var(--muted);padding-left:22px;margin:0 0 18px;font-size:16px}
+code{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);opacity:.9}
+pre{margin:0 0 18px;padding:0;overflow:auto;font:14px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+
+.download{text-align:center;border-top:1px solid var(--line)}
+.download img.icon{width:96px;height:96px;margin:0 auto 22px;border-radius:22px}
+.download .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px}
+.req{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;margin-top:24px;color:var(--faint);font-size:15px}
+footer{padding:40px 0 56px;border-top:1px solid var(--line);color:var(--faint);font-size:14px;line-height:1.8}
+footer .wrap{display:grid;gap:10px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/guangji-symbol-dark.svg" alt="" width="26" height="26">Lucet 光集</a>
+    <div class="links">
+      <a href="#why">为什么做</a>
+      <a href="#features">功能</a>
+      <a href="#dji">DJI 素材</a>
+      <a href="#made">怎么做的</a>
+      <a href="#faq">常见问题</a>
+      <a class="lang" href="en/" lang="en" onclick="try{localStorage.setItem('lucet.lang','en')}catch(e){}">English</a>
+      <a class="btn primary small-btn cta" href="#download">下载</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">给 DJI 和 iPhone 拍摄者的 Mac 调色工具</p>
+    <h1>在 Mac 上把照片调好看，<br>不用先学摄影。</h1>
+    <p class="lead">一键自动，六个滑块，预设一眼挑，调完直接存进「照片」。照片、视频、Live Photo 都能调；想深入的时候，再展开完整的专业工具。</p>
+    <div class="actions">
+      <a class="btn primary" href="#download">下载 Mac 版</a>
+      <a class="btn glass" href="#features">看看能做什么</a>
+    </div>
+    <p class="small note">Apple 芯片 Mac · macOS 15 或更高 · 中文 / English</p>
+    <div class="window">
+      <img src="assets/shot-edit.jpg" width="2940" height="1514" alt="光集的编辑界面：左侧是素材库，中间是一张无人机拍摄的秋日林地，右侧是预设缩略图和六个简单滑块">
+    </div>
+  </div>
+</section>
+
+<section class="story" id="why">
+  <div class="wrap">
+    <p class="eyebrow">为什么做 Lucet 光集</p>
+    <h2>手机上能调，Mac 上却没有顺手的工具。</h2>
+    <div class="grid">
+      <blockquote>
+        我用 DJI 拍素材，想调一下颜色和色调，才发现 DJI Mimo 只有手机版<span>（iOS 和 Android，截至 2026 年 10 月）</span>。想在大屏幕上调，只能回到手机上。
+        <br><br>
+        Lightroom、Photoshop 当然什么都能做，但打开的第一眼，就是几十个看不懂的滑块。
+        <br><br>
+        <span>光集想做中间那一块：在 Mac 上，简单得像手机 App；想学的时候，也有人在旁边讲。</span>
+      </blockquote>
+      <div class="gap">
+        <div><b>手机里的调色 App</b><p>上手快，但屏幕小，素材还要先传到手机上。</p></div>
+        <div><b>专业软件</b><p>功能强大，也意味着第一次打开就要面对几十个参数。</p></div>
+        <div class="us"><b>Lucet 光集</b><p>在 Mac 的大屏幕上，用「自动」和六个滑块开始；需要时展开完整工具，并且边调边学。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">功能</p>
+      <h2>简单开始，需要时再深入</h2>
+      <p class="lead">默认只给你最常用的几样。其余的工具都在，只是先收起来。</p>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">一键自动</p>
+        <h3>点一下「自动」，先得到一张看得过去的</h3>
+        <p>光集看这张照片本身的明暗和颜色，再替你调好曝光、影调、白平衡和色彩。它很克制：</p>
+        <ul>
+          <li>白底、雪景这类本来就明亮的照片，保持明亮，不会被压灰</li>
+          <li>夜景保持夜景，日落保留暖色，不会把氛围调没</li>
+          <li>不满意？按 ⌘Z 撤销，或按 <code>\</code> 看原图</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="assets/before.jpg" width="1024" height="576" alt="自动调整前的秋日山坡" loading="lazy">
+          <img class="after" src="assets/after.jpg" width="1024" height="576" alt="自动调整后的秋日山坡" loading="lazy">
+          <span class="tag l">原图</span><span class="tag r">自动后</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="拖动对比自动调整前后">
+        </div>
+        <p class="small" style="margin-top:12px">拖动对比。这是光集自动调整的真实结果，没有额外修图。</p>
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">六个滑块 · 预设缩略图</p>
+        <h3>挑风格，是看出来的，不是试出来的</h3>
+        <p>每个预设都直接用你这张照片预览。点一下就套用，不喜欢就撤销。简单模式只有六个滑块：亮度、对比度、亮部、暗部、冷暖、鲜艳度，每个都配了一句人话解释。</p>
+        <ul>
+          <li><b>AI 调色</b>：一个小型神经网络看过整张照片，为它生成专属的调色；在你的 Mac 上计算，不上传</li>
+          <li>把你调好的样子存成自己的预设，下次一键用到别的照片上</li>
+          <li>把一张照片的调色复制给一整批，曝光默认不跟着改</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="assets/panel-presets.jpg" width="660" height="880" alt="光集右侧面板：五个预设的缩略图和六个简单滑块" loading="lazy"></div>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">局部调整</p>
+        <h3>只改天空，地面不动</h3>
+        <p>很多照片的问题只在一部分：天空太亮、人物太暗。局部调整把滑块的作用限制在你划出的范围里：</p>
+        <ul>
+          <li><b>渐变</b>：从一条线逐渐过渡到另一条线，最常用来压暗天空</li>
+          <li><b>椭圆</b>：提亮主体，或者反转过来压暗四周</li>
+          <li><b>画笔</b>：涂到哪里就调哪里，按住 ⌥ 擦除</li>
+          <li><b>主体</b>：自动找出人物、动物和前景物体，反转就调整背景</li>
+          <li>每一层都有自己的曝光、对比度、高光、阴影、色温、饱和度、清晰度、去雾等；点「显示蒙版」用红色看清范围</li>
+          <li>范围跟着照片内容走：之后再裁剪、旋转，蒙版也不会错位</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="assets/sky-before.jpg" width="1200" height="675" alt="调整前：日落时的湿地，天空偏亮" loading="lazy">
+          <img class="after" src="assets/sky-after.jpg" width="1200" height="675" alt="用一个渐变压暗天空之后：云更有层次，地面不变" loading="lazy">
+          <span class="tag l">原图</span><span class="tag r">渐变压暗天空</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="拖动对比局部调整前后">
+        </div>
+        <p class="small" style="margin-top:12px">一个渐变：天空曝光 −0.7、高光 −45、饱和度 +18，地面完全不变。光集的真实输出。</p>
+      </div>
+    </div>
+    <div class="window" style="margin-bottom:24px">
+      <img src="assets/shot-local.jpg" width="2415" height="1514" alt="在画面上拖动渐变的两条线；右侧是这一层的滑块" loading="lazy">
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">去除</p>
+        <h3>画面里多了一样东西？涂掉它</h3>
+        <p>用「去除」画笔涂抹电线、路人、垃圾或镜头上的灰尘，松开后光集会在周围找相似的纹理，把它自然地补上。</p>
+        <ul>
+          <li>经典的 PatchMatch 补全，在你的 Mac 上计算，不需要下载模型，也不会上传照片</li>
+          <li>补好的区域之后照样跟着调色走</li>
+          <li>适合较小的东西；很大的区域可以分几次去除</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="assets/sky-before.jpg" width="1200" height="675" alt="去除前：日落湿地，右下角有一块指示牌" loading="lazy">
+          <img class="after" src="assets/remove-after.jpg" width="1200" height="675" alt="去除后：指示牌被周围的草地和水面补上" loading="lazy">
+          <span class="tag l">原图</span><span class="tag r">去除指示牌</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="拖动对比去除前后">
+        </div>
+        <p class="small" style="margin-top:12px">在指示牌上涂了三笔。光集的真实输出。</p>
+      </div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">拖动裁剪</p>
+        <h3>在照片上直接拖，就像在「照片」App 里一样</h3>
+        <p>打开「构图」，整张照片会显示出来，裁剪框直接在画面上：拖动框移动，拖四个角缩放，画幅比例自动保持。拉直、旋转、镜像也都在这里，地平线歪了还会提醒你。</p>
+      </div>
+      <div class="window">
+        <img src="assets/shot-crop.jpg" width="2415" height="1514" alt="在画面上拖动裁剪框，把一张航拍照片裁成正方形" loading="lazy">
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">匹配色调 · 导出 LUT</p>
+        <h3>喜欢哪张的颜色，就让这张向它靠拢</h3>
+        <p>在素材库里选一张你喜欢它色调的照片，光集会把这一张的整体明暗和颜色往它那边带。结果是一个 LUT，可以用强度滑块决定带多少，也可以撤销。</p>
+        <ul>
+          <li>方法是在 Lab 色彩空间里对齐两张照片的平均值和分布（Reinhard 色彩迁移），不会凭空生成内容</li>
+          <li>反过来，也可以把你调好的颜色导出成 <code>.cube</code> LUT，在 DaVinci Resolve、Final Cut Pro、Premiere 里给视频用</li>
+        </ul>
+      </div>
+      <div>
+        <div class="compare" style="--pos:50%">
+          <img src="assets/match-before.jpg" width="1200" height="675" alt="匹配前：秋日河谷" loading="lazy">
+          <img class="after" src="assets/match-after.jpg" width="1200" height="675" alt="向一张日落照片的色调靠拢之后：河水更蓝，树林更金黄" loading="lazy">
+          <span class="tag l">原图</span><span class="tag r">匹配色调后</span>
+          <div class="line"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="拖动对比匹配色调前后">
+        </div>
+        <div class="compare-note">
+          <img src="assets/match-reference.jpg" width="640" height="360" alt="参考照片：日落时的湿地" loading="lazy">
+          <p class="small">参考照片是上面那张日落。强度 80%，光集的真实输出。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">项目</p>
+        <h3>一件事一个项目，一个项目一套颜色</h3>
+        <p>把一次旅行、一篇帖子或一组客片放进同一个项目。在任意一张上调颜色，整个项目都会跟着变；曝光、裁剪和局部调整仍是每张自己的。</p>
+        <ul>
+          <li>「统一明暗与色温」：每张都向整组的中间值靠拢，看起来像同一时间拍的一组</li>
+          <li>「只这张」：个别照片需要不一样时，单独改它</li>
+          <li>「导出项目」：已选用的（或全部）照片，存进以项目命名的文件夹</li>
+          <li>同一张照片可以放进几个项目，每个项目里是各自的版本</li>
+        </ul>
+      </div>
+      <div class="window"><img src="assets/shot-project.jpg" width="2938" height="1100" alt="光集的项目：侧边栏里的项目列表，右边是共用一套颜色的八张照片" loading="lazy"></div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">重复与相似 · 并排选片</p>
+        <h3>同一个场景拍了好几张？并排看，只留最好的</h3>
+        <p>打开「重复与相似」，光集会把构图和颜色几乎一样的几张、以及同一台相机 2 秒内连续拍下的照片归成一组。点「并排比较」，几张照片并排显示，按 P 选用、X 排除，或者「只保留选中的这张」。</p>
+        <ul>
+          <li>内容完全相同的文件（同一张导入了两次、Finder 里的副本，视频也算）排在最前面，一键排除或移出素材库，硬盘上的文件不会被删除</li>
+          <li>「放大到 100%」：所有照片同时放大到同一个位置，拖动时一起平移，适合比较谁更清楚</li>
+          <li>比对在本机进行，几十张照片不到一秒</li>
+        </ul>
+      </div>
+      <div class="pair">
+        <div class="window"><img src="assets/shot-similar.jpg" width="2415" height="960" alt="「重复与相似」视图：同一场景的三张照片归成一组" loading="lazy"></div>
+        <div class="shot"><img src="assets/sheet-compare.jpg" width="1920" height="1488" alt="并排选片：三张相似照片并排显示，可以选用、排除或只保留一张" loading="lazy"></div>
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="text">
+        <p class="kicker">边调边学</p>
+        <h3>不是教程，而是讲你手上这一张</h3>
+        <p>光集会读这张照片，指出真正的问题：哪里过曝了、哪里偏色、地平线歪了多少度，并给一个可以一键试用的调整。悬停在滑块名上，画面会只高亮它影响的区域。</p>
+        <ul>
+          <li>互动课：几分钟一课，用动画和你自己的照片讲清直方图、曝光、曲线、白平衡、光圈、焦距、视频帧率和 Log，边看边动手</li>
+          <li>拖动任何一个明暗滑块，直方图都会标出它改变的是哪一段（最暗部到最亮部）</li>
+          <li>可以选「入门 / 进阶 / 专业」，讲解的深浅会跟着变</li>
+          <li>想问什么，直接问：「天空为什么发灰？」（可选，需要你自己的 AI 密钥，默认关闭）</li>
+          <li>学习记录只保存在你的 Mac 上</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="assets/panel-learn.jpg" width="660" height="870" alt="光集的学习面板：针对这张照片的提示、问问这张照片、学习水平选择" loading="lazy"></div>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <p class="kicker">存进「照片」· Live Photo</p>
+        <h3>调完，一步回到你的 iPhone</h3>
+        <p>导出时默认直接存入 Mac 的「照片」，开启 iCloud 照片后会同步到 iPhone。把一段视频剪成 3 秒以内，还能做成真正的 Live Photo。想要文件也行，或者直接用系统共享发给朋友。</p>
+        <ul>
+          <li>JPEG / HEIC / PNG，可缩小到社交平台常用尺寸</li>
+          <li>HDR 照片带增益图导出，调过色也仍是 HDR</li>
+          <li>导出预设、文件名规则（日期、序号、尺寸），以及可选的文字水印</li>
+          <li>默认保留拍摄时间、相机信息，移除位置信息</li>
+          <li>导出在后台进行，你可以接着调下一张</li>
+          <li>原片从不被修改，导出的永远是一份新副本</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="assets/sheet-export.jpg" width="1000" height="1434" alt="导出窗口：保存到「照片」或文件夹，格式、质量、尺寸、文件名和水印" loading="lazy" style="width:min(100%,440px)"></div>
+    </div>
+
+    <div class="feature stack">
+      <div class="text">
+        <p class="kicker">还有这些</p>
+        <h3>胶片感、历史记录、按内容找照片</h3>
+        <ul>
+          <li><b>去雾、褪色、颗粒、黑白</b>：在「完整」模式的效果里，去雾用暗通道估计每个区域的雾有多重</li>
+          <li><b>历史记录</b>：每一次修改都有名字，点一下就回到那时，关掉再打开也还在</li>
+          <li><b>按内容搜索</b>：在素材库输入「天空」「狗」「日落」，画面里有它的照片就会出来，在本机识别</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dji">
+  <div class="wrap">
+    <div class="feature reverse" style="padding:0">
+      <div class="text">
+        <p class="kicker">为 DJI 素材准备</p>
+        <h3>拍完就能调，也能看清你的素材</h3>
+        <p>光集能直接打开 DJI 无人机和相机导出的 MP4、MOV。右侧「信息」页会列出编码（如 HEVC Main 10）、位深、码率、帧率、色彩空间和拍摄设备，不用再去别的软件里查。</p>
+        <ul>
+          <li>导入 DJI 官方的 <code>.cube</code> 风格 LUT，已用 Pocket 3 的 Spring / Winter Pro 实测</li>
+          <li>把在光集里调好的颜色导出成 <code>.cube</code>，带到 DaVinci Resolve 等剪辑软件里继续用</li>
+          <li>视频可以裁切、变速（0.5–4 倍），也可以截取 3 秒做成 Live Photo</li>
+          <li>10 位 HEVC 素材正常打开；HDR 视频可预览，高光扩展为实验功能</li>
+        </ul>
+        <p class="small" style="margin-top:16px">还在计划中：D-Log 素材自动套用转换 LUT（现在需要你自己导入对应的 LUT）。</p>
+      </div>
+      <div class="shot"><img src="assets/panel-info.jpg" width="660" height="1330" alt="信息面板：一段 DJI 视频的编码、帧率、码率、色彩空间和位深" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section id="made">
+  <div class="wrap">
+    <div class="feature" style="padding:0">
+      <div class="text">
+        <p class="kicker">怎么做出来的</p>
+        <h2>用一句人话，和 AI 一起把它做出来</h2>
+        <p>光集的第一版，是 ChatGPT 写出来的原型。我把它交给 Claude Code，让它先挑毛病，再一点点改：导入大文件夹不再卡住，界面重做成现在的样子，加上「自动」、预设缩略图和边调边学。你正在看的这个网页，还有宣传视频，也是这样做的：用网页技术写好，再渲染出来。</p>
+        <p>过程里最有意思的是：几乎每一次改动，都来自一句普通的人话，比如「这个蓝色太亮了」「信息不够」「方框太多」。不用先学编程，把感觉说清楚，剩下的交给 AI 去试、去改、去测试。</p>
+        <p>AI 也会错，而且错得很像回事。有一张白桌子上的拿铁照片，曾被判成「整体偏亮」，建议把曝光降 1.5 档；可白桌子本来就该亮。这样的问题，都是在真正用的时候一眼看出来，再修好、加上测试的。</p>
+        <p>也有合作伙伴参与：合作伙伴做的网页版 Lucet（Apache-2.0 开源）里的相似照片分组、色彩匹配和局部蒙版算法，又被移植进了这个 Mac 版。</p>
+        <p>所以光集也想和你一起做。有想法，到 GitHub 的 Issues 里说；你也在用 Claude Code 或别的 AI 工具做东西，欢迎分享你的做法，互相看看。</p>
+        <p style="margin-top:26px"><a class="btn glass" href="https://github.com/YaoYao021123/lucet/issues">到 GitHub 说说你的想法</a></p>
+      </div>
+      <pre class="commits" aria-label="光集的真实提交记录节选：从「ChatGPT 的原型」开始，逐步改成现在的样子"><i>4072608</i>Baseline: ChatGPT prototype as received
+<i>f99fe13</i>Rebuild the workbench UI
+<i>6aa164c</i>Compact inspector and an adaptive coach
+<i>0d74df2</i>Liquid Glass segmented controls
+<i>ad45c60</i>Calmer, mostly neutral interface
+<i>c4ebd85</i>Coach: stop calling high-key photos bad
+<i>786aa6c</i>Find moved or renamed files
+<i>7a2d555</i>自动 and a 简单 mode
+<i>760a567</i>Save exports to Photos and share them
+<i>aa6cf20</i>Drag the crop frame on the picture
+<i>7480183</i>Website: flatter layout
+<i>cca616c</i>Xiaohongshu launch pack
+<i>6adee37</i>Interactive lessons on your own photo
+<i>20f2a4d</i>English interface
+<i>ee78815</i>Export the grade as a LUT, match colors
+<i>d12af94</i>Similar shots and bursts
+<i>79f4324</i>Local adjustments</pre>
+    </div>
+  </div>
+</section>
+
+<section class="story" id="name">
+  <div class="wrap">
+    <p class="eyebrow">为什么要边调边学 · 名字</p>
+    <h2>好看之后，还想知道为什么。</h2>
+    <div class="grid">
+      <blockquote>
+        一键滤镜能让照片变好看，但下一次，你还是不知道为什么。
+        <br><br>
+        抖音上的摄影博主张小样用动画讲直方图、曲线和光圈，比任何说明书都清楚；可是只有几条视频，覆盖不了全部基础。<span>于是我们把这种讲法放进了 App：用你自己的照片，看像素怎样堆成直方图，拖动光圈看背景怎样变虚。课程的文字和动画都是我们自己写、自己画的，还在一课一课往上加。</span>
+      </blockquote>
+      <div class="gap">
+        <div><b>Lucet</b><p>拉丁语，意思是「它在发光」。</p></div>
+        <div><b>光集</b><p>把光收集起来。一张照片，本来就是被留住的光。</p></div>
+        <div class="us"><b>让每一个瞬间，自有光彩。</b><p>Let your moments shine.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">三步上手</p>
+      <h2>导入、点自动、存起来</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>导入</h3><p>把照片或视频文件夹拖进窗口。同名的照片和视频会自动合成一个 Live Photo。可以打星、选用、排除，先挑出好的。</p></div>
+      <div class="step"><h3>调色</h3><p>按 <code>A</code> 自动，再挑一个预设，用六个滑块微调。想看原图，按 <code>\</code>。</p></div>
+      <div class="step"><h3>存起来</h3><p>存到「照片」，或共享给朋友。之后再回来，所有调整都还在，也可以随时撤销。</p></div>
+    </div>
+
+    <div class="window" style="margin-top:56px">
+      <img src="assets/shot-browse.jpg" width="2415" height="960" alt="光集的素材库：无人机照片、拼图 Live、Live Photo 和一段 DJI 视频的缩略图网格" loading="lazy">
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>浏览与整理</h3><p>缩略图网格显示已调色的样子。评级 0–5、选用与排除、按类型和评级筛选、搜索文件名。</p></div>
+      <div class="card"><h3>完整模式</h3><p>示波器（直方图、波形、分量、矢量）、色轮、曲线、HSL 色彩混合、风格 LUT，处理顺序固定且每一步都能单独开关对比。</p></div>
+      <div class="card"><h3>拼图 Live</h3><p>把多段 3 秒视频拼成一张 Live Photo，每个画面各自调色。</p></div>
+      <div class="card"><h3>撤销与版本</h3><p>随时撤销、重做，还可以给一张照片存多个命名版本，随时回到某一个。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">适合谁</p>
+      <h2>先说清楚，省得你白下载</h2>
+    </div>
+    <div class="fit">
+      <div>
+        <h3>适合你，如果</h3>
+        <ul>
+          <li>用 DJI 或 iPhone 拍，想在 Mac 上快速调好再分享</li>
+          <li>觉得 Lightroom、Photoshop 太复杂，只想调亮度、颜色、裁一裁</li>
+          <li>想顺便弄明白「高光」「阴影」到底在调什么</li>
+          <li>喜欢原片不被动、随时能撤销的工具</li>
+        </ul>
+      </div>
+      <div>
+        <h3>暂时不适合，如果</h3>
+        <ul>
+          <li>你需要多轨道视频剪辑、转场、字幕</li>
+          <li>你要做 RAW 深度冲洗或商业级批量修图</li>
+          <li>你用的是 Intel 芯片的 Mac 或低于 macOS 15 的系统</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap center">
+    <p class="eyebrow">隐私</p>
+    <h2>你的照片，只在你的 Mac 上</h2>
+    <p class="lead">光集没有账号，没有统计，不上传任何照片。唯一会联网的是可选的「问问这张照片」：默认关闭，你填入自己的密钥后，只有在你点「提问」时才会发送一张缩小的预览（可以关掉）和调整参数，不含拍摄地点。</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center"><p class="eyebrow">常见问题</p><h2>你可能想问</h2></div>
+    <div class="faq">
+      <details><summary>会改动我的原片吗？</summary><p>不会。所有调整都保存成一份很小的配方文件，导出时才生成新的副本。你的原片、原文件名和位置都不会变。如果在 Finder 里移动或重命名了原片，光集会提示「找不到原文件」，指给它新位置就行，调整都会保留。</p></details>
+      <details><summary>需要什么电脑？</summary><p>Apple 芯片（M 系列）的 Mac，系统 macOS 15 或更高。在 macOS 26 上会使用「液态玻璃」界面。</p></details>
+      <details><summary>有英文界面吗？</summary><p>有。光集跟随系统语言显示中文或英文；也可以在菜单栏「Lucet 光集 › Language · 语言」里单独切换。</p></details>
+      <details><summary>支持哪些素材？</summary><p>照片：JPEG、HEIC、PNG、TIFF、WebP、DNG，以及常见相机的 RAW 文件（实验性）。视频：MP4、MOV 等（以 macOS 能解码的为准）。同名的 HEIC/JPG 加 MOV 会自动识别成 Live Photo。</p></details>
+      <details><summary>能直接存到 iPhone 吗？</summary><p>导出时选「保存到 「照片」」，开启 iCloud 照片后，会同步到你的 iPhone。Live Photo 会作为真正的 Live Photo 保存。</p></details>
+      <details><summary>打开时提示“无法验证开发者”怎么办？</summary><p>目前的版本还没有经过 Apple 公证，所以第一次打开会被系统拦下。这是正常的，可以这样放行：</p>
+        <ol>
+          <li>把「Lucet 光集」拖进「应用程序」，双击打开，看到提示后点「完成」</li>
+          <li>打开「系统设置 › 隐私与安全性」，滚动到最下面</li>
+          <li>找到「Lucet 光集」，点「仍要打开」，再确认一次</li>
+        </ol>
+        <p>只需要做这一次。你也可以从源码自己构建，见下方「下载」。</p></details>
+      <details><summary>「问问这张照片」是什么？</summary><p>这是可选功能：你可以用自然语言提问，比如「怎么调出胶片感？」，由 Claude 结合这张照片回答，并给出可以一键试用的调整。它需要你自己的 Anthropic API 密钥（保存在 Mac 的钥匙串里），费用由你的账户承担，默认关闭。中国大陆网络可能无法直接访问。不开启它，光集的其他功能完全不受影响。</p></details>
+      <details><summary>和 DJI 官方有关系吗？</summary><p>没有。光集是独立开发的软件，不是 DJI 的产品，也没有得到 DJI 的授权或认可。DJI、Mimo 等名称是各自所有者的商标，这里只用来说明光集可以打开哪些素材。</p></details>
+      <details><summary>我发现了问题，或者想要某个功能</summary><p>欢迎到 GitHub 的 Issues 里告诉我们，附上一张截图会很有帮助。</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="download" id="download">
+  <div class="wrap">
+    <img class="icon" src="assets/app-icon.png" width="512" height="512" alt="Lucet 光集图标">
+    <h2>让每一个瞬间，自有光彩。</h2>
+    <p class="lead">早期版本，欢迎试用，也欢迎告诉我们哪里不顺手。</p>
+    <div class="actions">
+      <a class="btn primary" href="https://github.com/YaoYao021123/lucet/releases/latest">下载 Lucet 光集（GitHub）</a>
+      <a class="btn glass" href="https://github.com/YaoYao021123/lucet">查看源码</a>
+    </div>
+    <div class="req"><span>Apple 芯片 Mac</span><span>macOS 15 或更高</span><span>中文 / English</span><span>首次打开需手动放行，见上方常见问题</span></div>
+    <div class="faq" style="text-align:left;margin-top:44px">
+      <details><summary>想自己从源码构建？</summary>
+        <p>需要安装 Xcode 命令行工具（<code>xcode-select --install</code>）。</p>
+<pre>git clone https://github.com/YaoYao021123/lucet.git
+cd lucet
+bash scripts/run-workbench.sh</pre>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Lucet 光集 · 照片、视频与 Live Photo 调色</div>
+    <div>Lucet 光集是独立开发的软件，与 DJI、Apple、Adobe、Anthropic、OpenAI 没有关联，也未获得它们的认可。DJI、Mimo、iPhone、Live Photo、Lightroom、Photoshop、Claude、ChatGPT 等名称属于各自的所有者。</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
+  document.querySelectorAll('.compare').forEach(function(box){
+    var input = box.querySelector('input');
+    function set(){ box.style.setProperty('--pos', input.value + '%'); }
+    input.addEventListener('input', set); set();
+    if (reduce) return;
+    // A gentle hint on first view: sweep once so people know it can be dragged.
+    var done = false;
+    new IntersectionObserver(function(es, obs){
+      if (done || !es[0].isIntersecting) return; done = true; obs.disconnect();
+      var t0 = null;
+      function frame(t){ t0 = t0 || t; var p = (t - t0) / 1400; if (p >= 1) { input.value = 50; set(); return; }
+        input.value = 50 + Math.sin(p * Math.PI * 2) * 30; set(); requestAnimationFrame(frame); }
+      requestAnimationFrame(frame);
+    }, {threshold: .6}).observe(box);
+  });
+})();
+</script>
+</body>
+</html>

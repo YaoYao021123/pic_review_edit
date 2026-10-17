@@ -1,0 +1,14 @@
+{
+  "_about": "One line of narration per scene of video.html, in order. 'text' is what is said and shown as the caption. 'speak' (optional) is what the speech engine reads when a word needs a respelling to be pronounced right. 'energy' (0-1) is how full the background music is under that scene.",
+  "scenes": [
+    { "id": "hook",    "energy": 0.30, "text": "DJI 拍完，想在 Mac 上调色？可是 DJI Mimo，只有手机版。" },
+    { "id": "problem", "energy": 0.40, "text": "Lightroom 和 Photoshop 又太重，打开第一眼，就是几十个看不懂的滑块。" },
+    { "id": "reveal",  "energy": 0.85, "text": "所以我做了光集。一个简单得像手机 App 的 Mac 调色工具。" },
+    { "id": "auto",    "energy": 0.70, "text": "点一下自动，它会先看这张照片，再替你调好明暗和颜色。不满意，随时撤销。" },
+    { "id": "presets", "energy": 0.70, "text": "预设，直接用你的照片预览。喜欢哪个，点哪个。" },
+    { "id": "crop",    "energy": 0.70, "text": "裁剪，也是直接在照片上拖。" },
+    { "id": "export",  "energy": 0.70, "text": "调完，直接存进照片，同步到你的 iPhone。视频，还能做成实况照片。" },
+    { "id": "story",   "energy": 0.60, "text": "这个 App，是我和 Claude Code 一起做的。最早的原型，是 ChatGPT 写的。后来每一次改动，几乎都只是我说了一句人话。比如，这个蓝色太亮了，或者，方框太多了。" },
+    { "id": "close",   "energy": 0.40, "text": "原片不会被改，也不上传。早期版本，想试试的，评论区告诉我。" }
+  ]
+}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>caption</title>
+<!-- One caption on a transparent background, rendered by scripts/build-talking-video.py: caption.html?text=…
+     Bold white text with a soft dark outline, so it reads over any face or picture. 1080 wide, 300 tall. -->
+<style>
+html,body{margin:0;background:transparent;width:1080px;height:300px;overflow:hidden}
+body{display:flex;align-items:flex-end;justify-content:center;font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif}
+#t{box-sizing:border-box;max-width:940px;padding:0 20px 24px;text-align:center;font-size:66px;line-height:1.28;font-weight:800;color:#fff;
+  -webkit-text-stroke:10px rgba(0,0,0,.72);paint-order:stroke fill;text-shadow:0 4px 18px rgba(0,0,0,.55)}
+</style>
+</head>
+<body><div id="t"></div>
+<script>document.getElementById("t").textContent = new URLSearchParams(location.search).get("text") || "";</script>
+</body>
+</html>

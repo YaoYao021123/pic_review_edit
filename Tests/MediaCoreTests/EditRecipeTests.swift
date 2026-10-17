@@ -29,6 +29,35 @@ struct EditRecipeTests {
         try Data([4,5,6,7]).write(to: source)
         #expect(throws: (any Error).self) { try store.restoreSnapshot(saved, for: source) }
     }
+    @Test func relocatedFileKeepsEditsAndVersionsButNotForADifferentFile() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder.appendingPathComponent("moved"), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let source = folder.appendingPathComponent("IMG_1.jpg")
+        try Data([1, 2, 3]).write(to: source)
+        let store = DraftStore(root: folder.appendingPathComponent("store"))
+        var recipe = EditRecipe(); recipe.adjustments.exposure = 0.5
+        try store.save(recipe, source: SourceStamp(source))
+        try store.saveSnapshot(recipe, name: "亮一点", source: SourceStamp(source))
+
+        // Renamed and moved in Finder: same bytes, same modification date.
+        let moved = folder.appendingPathComponent("moved/海边.jpg")
+        try FileManager.default.moveItem(at: source, to: moved)
+        #expect(try store.relocate(from: source, to: moved) == .moved)
+        #expect(try store.load(moved) == recipe)
+        #expect(store.snapshots(for: moved).count == 1)
+        #expect(try store.restoreSnapshot(store.snapshots(for: moved)[0], for: moved) == recipe)
+        #expect(!FileManager.default.fileExists(atPath: store.location(for: source).path))
+        #expect(try store.relocate(from: source, to: moved) == .nothingSaved)
+
+        // A different picture chosen by mistake does not receive the edits.
+        let other = folder.appendingPathComponent("other.jpg")
+        try Data([9, 9, 9, 9]).write(to: other)
+        #expect(try store.relocate(from: moved, to: other) == .differentFile)
+        #expect(try store.load(other) == nil)
+        #expect(try store.load(moved) == recipe)
+    }
+
     @Test func selectiveSyncPreservesOtherParametersRangeSoundAndHDR() {
         var target = EditRecipe(); target.adjustments.exposure = -0.5; target.adjustments.warmth = -20
         target.degrees = 3; target.hdrEffect = true

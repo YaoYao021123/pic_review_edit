@@ -26,8 +26,8 @@ public enum MediaInspectionError: Error, LocalizedError {
     case unsupported(String)
     public var errorDescription: String? {
         switch self {
-        case let .unreadable(path): return "无法读取文件：\(path)"
-        case let .unsupported(path): return "未找到有效图片或视频轨道：\(path)"
+        case let .unreadable(path): return L("无法读取文件：\(path)")
+        case let .unsupported(path): return L("未找到有效图片或视频轨道：\(path)")
         }
     }
 }
